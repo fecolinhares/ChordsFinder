@@ -1,0 +1,15 @@
+{
+  "project": "ChordsFinder",
+  "version": "1.0.0",
+  "current_phase": 1,
+  "total_phases": 5,
+  "created": "2026-06-10",
+  "updated": "2026-06-10",
+  "workflow": {
+    "require_plans": true,
+    "require_uat": true,
+    "require_code_review": false,
+    "auto_commit": true,
+    "auto_push": false
+  }
+}

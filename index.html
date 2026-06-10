@@ -1,0 +1,2227 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="index, follow">
+  <title>ChordsFinder — Free Online Chord & Key Detector | Instant Chord Analysis</title>
+  <meta name="description" content="Free online chord and key detector for musicians. Upload audio, paste a YouTube link, or capture live audio from your mic or browser tab — detect chords, key, and chord progression instantly with no servers, sign-ups, or data uploads. 100% private. Free for musicians, producers, and DJs.">
+  <meta name="keywords" content="chord finder, chord detector, key finder, chord analyzer, music chord detection, song key finder, chord progression analyzer, free chord detector, audio chord analysis, YouTube chord finder, microphone chord detector, online chord finder">
+  <meta property="og:title" content="ChordsFinder — Free Online Chord & Key Detector">
+  <meta property="og:description" content="Detect chords, key, and chord progression from audio files, YouTube links, microphone, or browser tabs. 100% private, no servers, no sign-ups.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://fecolinhares.github.io/ChordsFinder/">
+  <meta property="og:image" content="https://fecolinhares.github.io/ChordsFinder/og-chordsfinder.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="ChordsFinder — Free Online Chord & Key Analyzer">
+  <meta name="twitter:description" content="Detect chords, key, and progression from audio files, YouTube, microphone, or browser tabs. 100% private.">
+  <link rel="canonical" href="https://fecolinhares.github.io/ChordsFinder/">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎹</text></svg>">
+
+  <!-- Google Search Console verification (placeholder) -->
+  <meta name="google-site-verification" content="GOOGLE_SITE_VERIFICATION_PLACEHOLDER" />
+
+  <!-- OG Image fallback -->
+  <link rel="image_src" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='630'%3E%3Crect width='1200' height='630' fill='%230E0E0E'/%3E%3Ctext x='600' y='220' text-anchor='middle' font-family='system-ui' font-size='64' font-weight='700' fill='%23F97316'%3EChordsFinder%3C/text%3E%3Ctext x='600' y='280' text-anchor='middle' font-family='system-ui' font-size='22' fill='%23a0a0a0'%3EDetect chords %26#8226; Key %26#8226; Progression%3C/text%3E%3Ctext x='600' y='340' text-anchor='middle' font-family='system-ui' font-size='18' fill='%23666'%3E100%25 private %26#8226; No servers %26#8226; Free Forever%3C/text%3E%3Ccircle cx='180' cy='180' r='80' fill='%2306B6D4' opacity='0.15'/%3E%3Ccircle cx='1020' cy='450' r='120' fill='%23F97316' opacity='0.1'/%3E%3C/svg%3E">
+
+  <!-- Preconnect to CDN and Google Fonts -->
+  <link rel="preconnect" href="https://cdn.jsdelivr.net">
+  <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- Structured data: WebApplication -->
+  <meta name="webmcp" content="ChordsFinder provides four tools: uploadFile analyzes audio files for chords, analyzeYoutube detects chords from YouTube URLs, captureMic records microphone audio, captureTab captures tab audio. All return chord progression, key, and chord confidence.">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "ChordsFinder",
+    "url": "https://fecolinhares.github.io/ChordsFinder/",
+    "description": "Free online chord and key detector. Upload audio files, paste YouTube links, or capture audio from your microphone or browser tab — detect the chords and key of any song instantly entirely client-side. No servers, no sign-ups, no data uploads. 100% free for musicians, producers, and DJs.",
+    "applicationCategory": "Multimedia",
+    "operatingSystem": "Windows, macOS, Linux, ChromeOS, Android, iOS",
+    "browserRequirements": "Requires modern browser with Web Audio API (Chrome, Firefox, Safari, Edge). Tab capture requires getDisplayMedia support (Chrome 74+, Firefox 76+, Safari 17+). Microphone capture requires getUserMedia in a secure context (HTTPS or localhost).",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD",
+      "priceValidUntil": "2030-12-31",
+      "availability": "https://schema.org/InStock"
+    },
+    "author": {
+      "@type": "Person",
+      "name": "Feco Linhares",
+      "url": "https://github.com/fecolinhares"
+    },
+    "featureList": [
+      "Chord detection from audio files (MP3, WAV, FLAC, OGG)",
+      "Key detection (major/minor) with strength",
+      "Chord progression display with timing",
+      "Chord quality indication (major, minor, dim, aug, 7th)",
+      "Chord detection from YouTube links via Piped API",
+      "Chord detection from microphone input (getUserMedia)",
+      "Chord detection from browser tab audio capture (getDisplayMedia)",
+      "Confidence indicator for each chord",
+      "Dark and light themes with persistent toggle",
+      "Drag-and-drop file upload with auto-analyze",
+      "Offline support via Service Worker for file uploads",
+      "100% private — no uploads to servers, all processing client-side",
+      "Responsive design for mobile, tablet, and desktop"
+    ],
+    "screenshot": "https://fecolinhares.github.io/ChordsFinder/og-chordsfinder.png"
+  }
+  </script>
+
+  <!-- essentia.js WASM — async because detection only starts on user action -->
+  <script src="https://cdn.jsdelivr.net/npm/essentia.js@0.1.3/dist/essentia.js-core.umd.min.js" async crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/essentia.js@0.1.3/dist/essentia-wasm.web.js" async crossorigin="anonymous"></script>
+
+  <style>
+    /* --- Reset --- */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* --- Design Tokens (Rhythmcore-based, same as BPMFinder) --- */
+    :root {
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', 'Cascadia Code', 'Roboto Mono', Menlo, monospace;
+
+      --text-xs: 0.75rem;
+      --text-sm: 0.875rem;
+      --text-base: 1rem;
+      --text-lg: 1.25rem;
+      --text-xl: 2rem;
+      --text-2xl: 2.5rem;
+      --text-display: 4rem;
+
+      --space-1: 0.25rem;
+      --space-2: 0.5rem;
+      --space-3: 0.75rem;
+      --space-4: 1rem;
+      --space-5: 1.25rem;
+      --space-6: 1.5rem;
+      --space-8: 2rem;
+      --space-12: 3rem;
+      --space-16: 4rem;
+      --space-20: 5rem;
+
+      --secondary: oklch(1 0 0);
+
+      --radius-card: 8px;
+      --radius-control: 8px;
+      --radius-pill: 9999px;
+
+      --transition-fast: 150ms cubic-bezier(0.16, 1, 0.3, 1);
+      --transition-base: 250ms cubic-bezier(0.16, 1, 0.3, 1);
+      --transition-slow: 400ms cubic-bezier(0.16, 1, 0.3, 1);
+
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.06), 0 1px 4px rgba(0,0,0,0.04);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
+      --shadow-lg: 0 8px 24px rgba(0,0,0,0.10), 0 4px 8px rgba(0,0,0,0.06);
+      --shadow-hover: 0 12px 32px rgba(0,0,0,0.14), 0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    /* --- Dark Theme (default) --- */
+    [data-theme="dark"] {
+      --primary: oklch(0.53 0.14 195);
+      --primary-hover: oklch(0.58 0.14 195);
+      --primary-dim: oklch(0.53 0.14 195 / 0.15);
+      --primary-glow: oklch(0.53 0.14 195 / 0.08);
+
+      --accent: oklch(0.70 0.18 51);
+      --accent-hover: oklch(0.75 0.18 51);
+      --accent-dim: oklch(0.70 0.18 51 / 0.15);
+      --accent-glow: oklch(0.70 0.18 51 / 0.08);
+
+      --bg-base: oklch(0.07 0.01 60);
+      --bg-surface: oklch(0.11 0.01 60);
+      --bg-elevated: oklch(0.14 0.01 60);
+      --bg-hover: oklch(0.18 0.01 60);
+
+      --text-primary: oklch(0.92 0.005 60);
+      --text-secondary: oklch(0.79 0.01 60);
+      --text-tertiary: oklch(0.70 0.01 60);
+
+      --border-subtle: oklch(0.18 0.01 60);
+      --border-default: oklch(0.25 0.01 60);
+      --border-accent: oklch(0.65 0.14 195 / 0.3);
+
+      --surface: oklch(0.65 0.02 260);
+
+      --card-bg: oklch(0.11 0.01 60);
+      --card-border: oklch(0.18 0.01 60);
+
+      --success: oklch(0.65 0.14 150);
+      --error: oklch(0.60 0.18 30);
+      --warning: oklch(0.72 0.12 85);
+      --warning-dim: oklch(0.72 0.12 85 / 0.15);
+    }
+
+    /* --- Light Theme --- */
+    [data-theme="light"] {
+      --primary: oklch(0.53 0.16 195);
+      --primary-hover: oklch(0.58 0.16 195);
+      --primary-dim: oklch(0.53 0.16 195 / 0.12);
+      --primary-glow: oklch(0.53 0.16 195 / 0.06);
+
+      --accent: oklch(0.60 0.18 51);
+      --accent-hover: oklch(0.55 0.18 51);
+      --accent-dim: oklch(0.60 0.18 51 / 0.12);
+      --accent-glow: oklch(0.60 0.18 51 / 0.06);
+
+      --bg-base: oklch(1 0 0);
+      --bg-surface: oklch(0.97 0.005 260);
+      --bg-elevated: oklch(1 0 0);
+      --bg-hover: oklch(0.93 0.005 260);
+
+      --text-primary: oklch(0.16 0.01 260);
+      --text-secondary: oklch(0.38 0.02 260);
+      --text-tertiary: oklch(0.55 0.01 260);
+
+      --border-subtle: oklch(0.90 0.005 260);
+      --border-default: oklch(0.82 0.005 260);
+      --border-accent: oklch(0.62 0.16 195 / 0.3);
+
+      --surface: oklch(0.36 0.02 260);
+
+      --card-bg: oklch(1 0 0);
+      --card-border: oklch(0.90 0.005 260);
+
+      --success: oklch(0.55 0.15 150);
+      --error: oklch(0.55 0.20 30);
+      --warning: oklch(0.65 0.14 85);
+      --warning-dim: oklch(0.65 0.14 85 / 0.15);
+    }
+
+    /* --- Base --- */
+    html { font-size: 16px; }
+    body {
+      font-family: var(--font-sans);
+      font-size: var(--text-base);
+      font-weight: 400;
+      line-height: 1.6;
+      color: var(--text-primary);
+      background: var(--bg-base);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      transition: background var(--transition-base), color var(--transition-base);
+    }
+
+    /* --- App Container --- */
+    .app {
+      max-width: 500px;
+      width: 100%;
+      margin: 0 auto;
+      padding: var(--space-6) var(--space-6);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-4);
+    }
+
+    /* --- Rhythmcore Card --- */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-sm);
+      transition: box-shadow var(--transition-base), transform var(--transition-base);
+    }
+    .card:hover {
+      box-shadow: var(--shadow-hover);
+      transform: translateY(-2px);
+    }
+    .card-padded {
+      padding: var(--space-6);
+    }
+
+    /* --- Header --- */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-3) var(--space-4);
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      text-decoration: none;
+      color: var(--text-primary);
+    }
+    .logo-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-control);
+      background: var(--primary-dim);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--text-lg);
+    }
+    .logo-text {
+      font-family: var(--font-sans);
+      font-size: var(--text-base);
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+    .logo-chord {
+      color: var(--accent);
+    }
+
+    /* --- Theme Toggle --- */
+    .theme-toggle {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-control);
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--text-secondary);
+      font-size: var(--text-base);
+      font-family: var(--font-sans);
+      transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
+      box-shadow: var(--shadow-sm);
+    }
+    .theme-toggle:hover {
+      background: var(--bg-elevated);
+      color: var(--text-primary);
+      border-color: var(--border-default);
+      box-shadow: var(--shadow-md);
+      transform: translateY(-1px);
+    }
+
+    /* --- Hero --- */
+    .hero {
+      text-align: center;
+      padding: var(--space-4) var(--space-4) 0;
+    }
+    .hero h1 {
+      font-family: var(--font-sans);
+      font-size: var(--text-xl);
+      font-weight: 500;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      margin-bottom: var(--space-2);
+    }
+    .hero h1 span { color: var(--accent); }
+    .hero p {
+      font-size: var(--text-sm);
+      color: var(--text-secondary);
+      max-width: 380px;
+      margin: 0 auto;
+      line-height: 1.5;
+    }
+
+    /* --- Trust Badges --- */
+    .badges {
+      display: flex;
+      justify-content: center;
+      gap: var(--space-2);
+      flex-wrap: wrap;
+      margin-bottom: var(--space-8);
+    }
+    .badge {
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: var(--radius-pill);
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-secondary);
+      white-space: nowrap;
+    }
+
+    /* --- Drop Zone --- */
+    .drop-zone {
+      position: relative;
+      border-radius: var(--radius-card);
+      background: var(--card-bg);
+      border: 1px dashed var(--border-default);
+      padding: var(--space-12) var(--space-6);
+      text-align: center;
+      cursor: pointer;
+      transition: border-color var(--transition-base), background var(--transition-base), box-shadow var(--transition-base), transform var(--transition-base);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-4);
+      box-shadow: var(--shadow-sm);
+    }
+    .drop-zone:hover {
+      border-color: var(--border-accent);
+      background: var(--bg-elevated);
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+    }
+    .drop-zone.drag-over {
+      border-color: var(--primary);
+      border-style: solid;
+      background: var(--primary-dim);
+      box-shadow: var(--shadow-lg), 0 0 24px var(--primary-glow);
+      transform: translateY(-2px) scale(1.02);
+    }
+    .drop-zone.has-file {
+      border-style: solid;
+      border-color: var(--card-border);
+      padding: var(--space-6);
+      cursor: default;
+    }
+    .drop-zone.has-file:hover {
+      border-color: var(--card-border);
+      background: var(--card-bg);
+      transform: none;
+      box-shadow: var(--shadow-sm);
+    }
+    .drop-zone.hidden { display: none; }
+
+    .drop-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-control);
+      background: var(--primary-dim);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      transition: transform var(--transition-base);
+    }
+    .drag-over .drop-icon { transform: scale(1.1) rotate(-5deg); }
+
+    .drop-label {
+      font-family: var(--font-sans);
+      font-size: var(--text-base);
+      font-weight: 500;
+    }
+    .drop-hint {
+      font-size: var(--text-sm);
+      color: var(--text-secondary);
+    }
+    .drop-hint code {
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      font-weight: 600;
+      background: var(--bg-elevated);
+      padding: 2px 8px;
+      border-radius: 4px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .file-input {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    /* --- Upload Panel --- */
+    .upload-panel {
+      display: none;
+      flex-direction: column;
+      gap: var(--space-3);
+    }
+    .upload-panel.visible { display: flex; }
+
+    .file-info {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-3) var(--space-4);
+      background: var(--surface);
+      border-radius: var(--radius-control);
+      width: 100%;
+    }
+    .file-info-icon { font-size: var(--text-lg); flex-shrink: 0; }
+    .file-info-name {
+      font-family: var(--font-mono);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      text-align: left;
+      color: var(--secondary);
+    }
+    .file-info-size {
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      font-weight: 400;
+      color: var(--text-secondary);
+      flex-shrink: 0;
+    }
+    .file-info-clear {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      cursor: pointer;
+      padding: var(--space-1);
+      border-radius: 4px;
+      font-size: var(--text-sm);
+      flex-shrink: 0;
+      transition: color var(--transition-fast);
+    }
+    .file-info-clear:hover { color: var(--text-primary); }
+
+    /* --- Analyze Button --- */
+    .analyze-btn {
+      width: 100%;
+      padding: var(--space-3) var(--space-6);
+      font-family: var(--font-sans);
+      font-size: var(--text-base);
+      font-weight: 600;
+      border: none;
+      border-radius: var(--radius-control);
+      background: var(--accent);
+      color: var(--bg-base);
+      cursor: pointer;
+      transition: background var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      box-shadow: var(--shadow-sm);
+    }
+    .analyze-btn:hover:not(:disabled) {
+      background: var(--accent-hover);
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+    }
+    .analyze-btn:active:not(:disabled) { transform: translateY(0); }
+    .analyze-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .analyze-btn:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .youtube-analyze-btn {
+      width: auto;
+      min-width: 100px;
+      padding: var(--space-2) var(--space-4);
+      font-family: var(--font-sans);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      border: none;
+      border-radius: var(--radius-control);
+      background: var(--accent);
+      color: var(--bg-base);
+      cursor: pointer;
+      transition: background var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .youtube-analyze-btn:hover:not(:disabled) {
+      background: var(--accent-hover);
+      transform: translateY(-2px);
+    }
+    .youtube-analyze-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* --- Input Mode Tabs --- */
+    .input-tabs {
+      display: flex;
+      gap: 0;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-card);
+      overflow: hidden;
+      margin-bottom: var(--space-6);
+      box-shadow: var(--shadow-md);
+    }
+    .input-tab {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      padding: var(--space-3) var(--space-2);
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      color: var(--text-secondary);
+      font-family: var(--font-sans);
+      font-size: var(--text-base);
+      font-weight: 500;
+      transition: background var(--transition-fast), color var(--transition-fast);
+      white-space: nowrap;
+      position: relative;
+      min-height: 56px;
+    }
+    .input-tab:hover { background: var(--bg-hover); color: var(--text-primary); }
+    .input-tab.active {
+      background: var(--primary);
+      color: var(--secondary);
+      font-weight: 600;
+    }
+    .input-tab:focus-visible {
+      outline: 2px solid var(--primary);
+      outline-offset: -2px;
+      z-index: 1;
+    }
+    .input-tab-icon {
+      display: flex;
+      align-items: center;
+      font-size: 1.3rem;
+      flex-shrink: 0;
+    }
+    .input-tab-icon svg {
+      width: 22px;
+      height: 22px;
+      display: block;
+    }
+    .input-tab.active .input-tab-icon svg {
+      filter: brightness(0) invert(1);
+    }
+    .input-tab-label {
+      font-size: var(--text-base);
+      font-weight: 500;
+      line-height: 1;
+    }
+    .input-tab.active .input-tab-label { font-weight: 600; }
+
+    /* --- Input Panels --- */
+    .input-panel { display: none; }
+    .input-panel.visible { display: block; }
+
+    /* --- YouTube URL Panel --- */
+    .youtube-input-row {
+      display: flex;
+      gap: var(--space-3);
+    }
+    .youtube-input {
+      flex: 1;
+      padding: var(--space-2) var(--space-3);
+      background: var(--bg-base);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-control);
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+      font-size: var(--text-sm);
+      transition: border-color var(--transition-fast);
+    }
+    .youtube-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px var(--primary-dim);
+    }
+    .youtube-input::placeholder { color: var(--text-tertiary); }
+    .youtube-hint {
+      margin-top: var(--space-2);
+      font-size: var(--text-xs);
+      color: var(--text-tertiary);
+    }
+    .youtube-hint code {
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      background: var(--bg-elevated);
+      padding: 1px 6px;
+      border-radius: 4px;
+    }
+    .youtube-loading {
+      margin-top: var(--space-3);
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-3);
+      background: var(--bg-surface);
+      border-radius: var(--radius-card);
+    }
+    .youtube-loading.hidden { display: none; }
+    .youtube-thumb img {
+      width: 80px;
+      height: 45px;
+      border-radius: 4px;
+      object-fit: cover;
+      display: block;
+    }
+    .youtube-meta { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+    .youtube-title {
+      font-family: var(--font-sans);
+      font-weight: 500;
+      font-size: var(--text-sm);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .youtube-channel { font-size: var(--text-xs); color: var(--text-tertiary); }
+    .youtube-status { font-size: var(--text-xs); color: var(--text-secondary); }
+    .youtube-error {
+      margin-top: var(--space-2);
+      font-size: var(--text-sm);
+      color: var(--error);
+    }
+    .youtube-error.hidden { display: none; }
+    .youtube-fallback {
+      margin-top: var(--space-3);
+      padding: var(--space-3);
+      background: var(--warning-dim);
+      border: 1px solid var(--warning);
+      border-radius: var(--radius-card);
+      text-align: center;
+      font-size: var(--text-sm);
+    }
+    .youtube-fallback.hidden { display: none; }
+    .youtube-fallback .btn-accent {
+      margin-top: var(--space-2);
+      padding: var(--space-2) var(--space-4);
+      border: none;
+      border-radius: var(--radius-control);
+      background: var(--accent);
+      color: var(--bg-base);
+      font-family: var(--font-sans);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      cursor: pointer;
+      transition: background var(--transition-fast), transform var(--transition-fast);
+    }
+    .youtube-fallback .btn-accent:hover {
+      background: var(--accent-hover);
+      transform: translateY(-2px);
+    }
+
+    /* --- Tab Capture Guide --- */
+    .youtube-guide {
+      margin-top: var(--space-4);
+      padding: var(--space-4);
+      background: var(--bg-surface);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-card);
+    }
+    .youtube-guide.hidden { display: none; }
+    .guide-header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      margin-bottom: var(--space-3);
+    }
+    .guide-icon { font-size: 1.5rem; }
+    .guide-title {
+      font-family: var(--font-sans);
+      font-size: var(--text-base);
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    .guide-steps {
+      margin: 0 0 var(--space-3) 0;
+      padding-left: var(--space-5);
+      font-size: var(--text-sm);
+      color: var(--text-secondary);
+      line-height: 1.8;
+    }
+    .guide-steps li strong { color: var(--text-primary); }
+    .guide-note {
+      font-size: var(--text-xs);
+      color: var(--text-tertiary);
+      margin: 0 0 var(--space-3) 0;
+    }
+    .guide-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: var(--space-2) var(--space-4);
+      border: none;
+      border-radius: var(--radius-control);
+      background: var(--accent);
+      color: var(--bg-base);
+      font-family: var(--font-sans);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      cursor: pointer;
+      transition: background var(--transition-fast), transform var(--transition-fast);
+    }
+    .guide-btn:hover {
+      background: var(--accent-hover);
+      transform: translateY(-2px);
+    }
+
+    /* --- Capture Options --- */
+    .capture-ready { text-align: center; }
+    .capture-ready.hidden { display: none; }
+    .capture-desc {
+      margin-bottom: var(--space-4);
+      font-size: var(--text-sm);
+      color: var(--text-secondary);
+    }
+    .capture-options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-3);
+      margin-bottom: var(--space-3);
+    }
+    .capture-option {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-2);
+      padding: var(--space-5) var(--space-3);
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-card);
+      cursor: pointer;
+      transition: background var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
+      font-family: var(--font-sans);
+      text-align: center;
+      min-height: 120px;
+    }
+    .capture-option:hover {
+      background: var(--bg-elevated);
+      border-color: var(--primary);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+    .capture-option:active { transform: translateY(0); }
+    .capture-option:focus-visible {
+      outline: 2px solid var(--primary);
+      outline-offset: 2px;
+    }
+    .capture-option-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius-control);
+      background: var(--primary-dim);
+      color: var(--primary);
+      flex-shrink: 0;
+    }
+    .capture-option-icon svg {
+      width: 24px;
+      height: 24px;
+      display: block;
+    }
+    .capture-option-label {
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .capture-option-desc {
+      font-size: var(--text-xs);
+      color: var(--text-tertiary);
+      line-height: 1.3;
+    }
+    .capture-req {
+      font-size: var(--text-xs);
+      color: var(--text-tertiary);
+      margin-bottom: var(--space-3);
+      text-align: center;
+    }
+    .capture-progress { text-align: center; padding: var(--space-6); }
+    .capture-progress.hidden { display: none; }
+    .capture-meter {
+      width: 100%;
+      height: 6px;
+      background: var(--bg-surface);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-bottom: var(--space-2);
+    }
+    .capture-meter-fill {
+      height: 100%;
+      background: var(--primary);
+      width: 0%;
+      transition: width 100ms linear;
+      border-radius: 3px;
+    }
+    .capture-countdown {
+      font-family: var(--font-mono);
+      font-size: var(--text-sm);
+      color: var(--text-secondary);
+    }
+    .capture-error { text-align: center; padding: var(--space-4); }
+    .capture-error.hidden { display: none; }
+    .capture-error-msg {
+      color: var(--error);
+      font-size: var(--text-sm);
+      margin-bottom: var(--space-2);
+    }
+    .capture-retry-btn {
+      padding: var(--space-2) var(--space-4);
+      border: none;
+      border-radius: var(--radius-control);
+      background: var(--accent);
+      color: var(--bg-base);
+      font-family: var(--font-sans);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      cursor: pointer;
+      transition: background var(--transition-fast), transform var(--transition-fast);
+    }
+    .capture-retry-btn:hover {
+      background: var(--accent-hover);
+      transform: translateY(-2px);
+    }
+
+    /* --- Result Source Indicator --- */
+    .result-source {
+      display: block;
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      color: var(--text-tertiary);
+      margin-top: var(--space-1);
+    }
+
+    /* --- Loading State --- */
+    .loading {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-6);
+      padding: var(--space-12) var(--space-6);
+      text-align: center;
+    }
+    .loading.visible { display: flex; }
+
+    .spinner {
+      width: 36px;
+      height: 36px;
+      border: 3px solid var(--border-subtle);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .loading-label {
+      font-size: var(--text-sm);
+      color: var(--text-secondary);
+    }
+    .loading-label em {
+      font-style: normal;
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    /* --- Key Display --- */
+    .key-display {
+      text-align: center;
+      padding: var(--space-4);
+      margin-bottom: var(--space-3);
+    }
+    .key-display.hidden { display: none; }
+    .key-label {
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      font-weight: 600;
+      color: var(--text-tertiary);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: var(--space-1);
+    }
+    .key-value {
+      font-family: var(--font-sans);
+      font-size: var(--text-2xl);
+      font-weight: 500;
+      color: var(--primary);
+      letter-spacing: -0.02em;
+    }
+    .key-strength {
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      color: var(--text-tertiary);
+      margin-top: var(--space-1);
+    }
+
+    /* --- Result Card (for chords) --- */
+    .result {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-3);
+      text-align: center;
+      padding: var(--space-6);
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-sm);
+    }
+    .result.visible {
+      display: flex;
+      animation: card-enter 500ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    .result.visible > * {
+      opacity: 0;
+      animation: stagger-fade-in 400ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    .result.visible > *:nth-child(1) { animation-delay: 60ms; }
+    .result.visible > *:nth-child(2) { animation-delay: 140ms; }
+    .result.visible > *:nth-child(3) { animation-delay: 220ms; }
+    .result.visible > *:nth-child(4) { animation-delay: 300ms; }
+    .result.visible > *:nth-child(5) { animation-delay: 380ms; }
+    .result.visible > *:nth-child(6) { animation-delay: 460ms; }
+
+    @keyframes card-enter {
+      from {
+        opacity: 0;
+        clip-path: inset(0 0 100% 0);
+        transform: translateY(-8px);
+      }
+      60% { clip-path: inset(0 0 0% 0); }
+      to {
+        opacity: 1;
+        clip-path: inset(0 0 0% 0);
+        transform: translateY(0);
+      }
+    }
+    @keyframes stagger-fade-in {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* --- Chord Display --- */
+    .chord-label {
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      font-weight: 600;
+      color: var(--text-tertiary);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .chord-main {
+      font-family: var(--font-sans);
+      font-size: var(--text-display);
+      font-weight: 500;
+      letter-spacing: -0.03em;
+      line-height: 1.04;
+      color: var(--accent);
+      font-variant-numeric: tabular-nums;
+    }
+    .chord-quality {
+      font-family: var(--font-mono);
+      font-size: var(--text-lg);
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+    .chord-confidence {
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      font-weight: 600;
+      color: var(--text-tertiary);
+      transition: color var(--transition-base);
+    }
+    .chord-confidence.confidence-good { color: var(--success); }
+    .chord-confidence.confidence-medium { color: var(--accent); }
+    .chord-confidence.confidence-bad { color: var(--error); }
+
+    /* --- Chord Progression --- */
+    .progression {
+      width: 100%;
+      margin-top: var(--space-3);
+      display: none;
+      flex-direction: column;
+      gap: var(--space-3);
+    }
+    .progression.visible { display: flex; }
+
+    .progression-label {
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      font-weight: 600;
+      color: var(--text-tertiary);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      text-align: center;
+    }
+
+    .progression-chords {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+      justify-content: center;
+    }
+    .prog-chord {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      padding: var(--space-2) var(--space-3);
+      border-radius: var(--radius-control);
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      min-width: 56px;
+      transition: background var(--transition-fast), border-color var(--transition-fast);
+    }
+    .prog-chord.active {
+      background: var(--accent-dim);
+      border-color: var(--accent);
+    }
+    .prog-chord-name {
+      font-family: var(--font-mono);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .prog-chord-time {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-tertiary);
+    }
+
+    /* --- Loading Inner (YouTube) --- */
+    .youtube-loading-inner {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      width: 100%;
+    }
+
+    /* --- Ambient pulse (same as BPMFinder) --- */
+    @keyframes ambient-pulse {
+      0%, 100% { opacity: 0.03; }
+      50% { opacity: 0.06; }
+    }
+    .app::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: -1;
+      background:
+        radial-gradient(ellipse 60% 40% at 20% 50%, var(--primary) 0%, transparent 100%),
+        radial-gradient(ellipse 40% 30% at 80% 20%, var(--accent) 0%, transparent 100%);
+      animation: ambient-pulse 8s ease-in-out infinite;
+    }
+
+    /* --- Reveal Animation --- */
+    .reveal {
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 600ms cubic-bezier(0.16, 1, 0.3, 1),
+                  transform 600ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* --- Error --- */
+    .error {
+      display: none;
+      padding: var(--space-3) var(--space-4);
+      background: var(--card-bg);
+      border: 1px solid var(--error);
+      border-radius: var(--radius-control);
+      color: var(--error);
+      font-size: var(--text-sm);
+      text-align: center;
+    }
+    .error.visible { display: block; }
+
+    /* --- Actions Row --- */
+    .actions {
+      display: flex;
+      gap: var(--space-3);
+      width: 100%;
+    }
+    .actions button {
+      flex: 1;
+      padding: var(--space-2) var(--space-4);
+      font-family: var(--font-sans);
+      font-size: var(--text-sm);
+      font-weight: 500;
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-control);
+      background: var(--bg-surface);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
+    }
+    .actions button:hover {
+      background: var(--bg-elevated);
+      color: var(--text-primary);
+      border-color: var(--border-default);
+      box-shadow: var(--shadow-sm);
+      transform: translateY(-1px);
+    }
+
+    /* --- Footer --- */
+    .footer {
+      text-align: center;
+      padding: var(--space-6) 0 var(--space-4);
+      font-size: var(--text-xs);
+      color: var(--text-tertiary);
+    }
+    .footer a {
+      color: var(--text-secondary);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      text-decoration-color: var(--text-tertiary);
+      transition: color var(--transition-fast), text-decoration-color var(--transition-fast);
+    }
+    .footer a:hover { color: var(--text-primary); text-decoration-color: var(--text-primary); }
+    .footer-tag {
+      margin-top: var(--space-2);
+      font-size: 0.625rem;
+      color: var(--text-tertiary);
+    }
+
+    /* --- Responsive --- */
+    @media (max-width: 480px) {
+      .app { padding: var(--space-4); gap: var(--space-3); }
+      .hero h1 { font-size: var(--text-lg); }
+      .hero { padding: var(--space-3) var(--space-3) 0; }
+      .badges { margin-bottom: var(--space-4); }
+      .drop-zone { padding: var(--space-8) var(--space-4); }
+      .result { padding: var(--space-4); }
+      .chord-main { font-size: 2.5rem; }
+      :root { --text-display: 2.5rem; }
+      .input-tab { padding: var(--space-2) var(--space-1); font-size: var(--text-base); min-height: 48px; gap: var(--space-1); }
+      .input-tab-icon { font-size: 1.1rem; }
+      .input-tab-icon svg { width: 18px; height: 18px; }
+      .input-tab-label { font-size: var(--text-sm); }
+      .input-tabs { margin-bottom: var(--space-4); }
+      .youtube-input-row { flex-direction: column; }
+      .youtube-analyze-btn { width: 100%; }
+      .youtube-loading { flex-wrap: wrap; }
+      .capture-options { grid-template-columns: 1fr; }
+      .capture-option { min-height: 80px; flex-direction: row; text-align: left; padding: var(--space-3) var(--space-4); }
+      .capture-option-icon { width: 36px; height: 36px; }
+      .capture-option-icon svg { width: 18px; height: 18px; }
+      .capture-option-desc { display: none; }
+      .key-value { font-size: var(--text-xl); }
+      .progression-chords { gap: var(--space-1); }
+      .prog-chord { min-width: 44px; padding: var(--space-1) var(--space-2); }
+      .prog-chord-name { font-size: var(--text-xs); }
+    }
+
+    /* --- Reduced Motion --- */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-delay: 0ms !important;
+        transition-duration: 0.01ms !important;
+      }
+      .app::before { animation: none; display: none; }
+      .reveal { opacity: 1; transform: none; transition: none; }
+      .result.visible { animation: none; }
+      .result.visible > * { animation: none; opacity: 1; }
+    }
+
+    /* --- Screen-reader only --- */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      margin: -1px;
+      padding: 0;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      border: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- Header -->
+    <header class="header reveal">
+      <a href="/" class="logo">
+        <span class="logo-icon" role="img" aria-label="Piano keys">🎹</span>
+        <span class="logo-text"><span class="logo-chord">Chord</span>sFinder</span>
+      </a>
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+        <svg class="theme-icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+          <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+        </svg>
+        <svg class="theme-icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" style="display:none">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+        </svg>
+      </button>
+    </header>
+
+    <main>
+    <!-- Hero -->
+    <section class="hero reveal">
+      <h1>Find the <span>chords</span> of any song</h1>
+      <p>Upload an audio file, paste a YouTube link, or capture live audio from your microphone or browser tab. Detect chords, key, and chord progression instantly — all in your browser, nothing leaves your machine.</p>
+    </section>
+
+    <!-- Trust badges -->
+    <div class="badges">
+      <span class="badge">🎯 Real-time Detection</span>
+      <span class="badge">🔒 100% Private</span>
+      <span class="badge">🎹 Chords &amp; Key</span>
+      <span class="badge">🆓 Free Forever</span>
+    </div>
+
+    <!-- Input Mode Tabs -->
+    <div class="input-tabs" id="inputTabs" role="tablist" aria-label="Input mode">
+      <button class="input-tab active" role="tab" aria-selected="true" data-mode="file" id="tabFile" aria-controls="panelFile">
+        <span class="input-tab-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15V9a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2z"/>
+            <polyline points="17 12 12 9 12 15 17 12"/>
+          </svg>
+        </span>
+        <span class="input-tab-label">File</span>
+      </button>
+      <button class="input-tab" role="tab" aria-selected="false" data-mode="youtube" id="tabYoutube" aria-controls="panelYoutube">
+        <span class="input-tab-icon">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M23.5 6.19a3.02 3.02 0 0 0-2.12-2.14C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.38.55A3.02 3.02 0 0 0 .5 6.19 31.6 31.6 0 0 0 0 12a31.6 31.6 0 0 0 .5 5.81 3.02 3.02 0 0 0 2.12 2.14c1.88.55 9.38.55 9.38.55s7.5 0 9.38-.55a3.02 3.02 0 0 0 2.12-2.14A31.6 31.6 0 0 0 24 12a31.6 31.6 0 0 0-.5-5.81zM9.55 15.57V8.43L15.82 12l-6.27 3.57z"/>
+          </svg>
+        </span>
+        <span class="input-tab-label">YouTube</span>
+      </button>
+      <button class="input-tab" role="tab" aria-selected="false" data-mode="capture" id="tabCapture" aria-controls="panelCapture">
+        <span class="input-tab-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+            <line x1="8" y1="21" x2="16" y2="21"/>
+            <line x1="12" y1="17" x2="12" y2="21"/>
+          </svg>
+        </span>
+        <span class="input-tab-label">Capture</span>
+      </button>
+    </div>
+
+    <!-- File Panel -->
+    <div id="panelFile" class="input-panel visible" webmcp-tool webmcp-tool-name="uploadFile" webmcp-tool-description="Upload an audio file for chord detection. Drag and drop or click to browse. Supports MP3, WAV, FLAC, OGG.">
+      <div class="drop-zone card reveal" id="dropZone">
+        <input type="file" class="file-input" id="fileInput" accept="audio/*" aria-label="Choose an audio file">
+        <div class="drop-icon" role="img" aria-label="Musical notes">♪</div>
+        <div class="drop-label">Drop an audio file here</div>
+        <div class="drop-hint">or click to browse · <code>MP3</code> <code>WAV</code> <code>FLAC</code> <code>OGG</code></div>
+      </div>
+
+      <div id="uploadPanel" class="upload-panel card card-padded">
+        <div class="file-info" id="fileInfo">
+          <span class="file-info-icon">🎵</span>
+          <span class="file-info-name" id="fileName">—</span>
+          <span class="file-info-size" id="fileSize">—</span>
+          <button class="file-info-clear" id="clearFile" aria-label="Remove file">✕</button>
+        </div>
+        <button class="analyze-btn" id="analyzeBtn">
+          <span>Analyze Chords</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- YouTube URL Panel -->
+    <div id="panelYoutube" class="input-panel card card-padded" role="tabpanel" hidden webmcp-tool webmcp-tool-name="analyzeYoutube" webmcp-tool-description="Analyze chords from a YouTube video URL. Paste a youtube.com or youtu.be link, fetches audio via Piped API.">
+      <div class="youtube-input-row">
+        <label for="youtubeUrlInput" class="sr-only">YouTube video URL</label>
+        <input type="url" id="youtubeUrlInput" class="youtube-input"
+               placeholder="Paste YouTube link…"
+               aria-label="YouTube video URL">
+        <button id="youtubeAnalyzeBtn" class="youtube-analyze-btn">
+          <span>Analyze</span>
+        </button>
+      </div>
+      <div class="youtube-hint">
+        Supports <code>youtube.com/watch?v=</code>, <code>youtu.be/</code>
+      </div>
+      <div class="youtube-error hidden" id="youtubeError"></div>
+      <div class="youtube-loading hidden" id="youtubeLoading">
+        <div class="youtube-loading-inner">
+          <div class="youtube-thumb" id="youtubeThumb">
+            <img id="youtubeThumbImg" alt="" crossorigin="anonymous">
+          </div>
+          <div class="youtube-meta">
+            <span class="youtube-title" id="youtubeTitle">—</span>
+            <span class="youtube-channel" id="youtubeChannel">—</span>
+          </div>
+          <div class="spinner" id="youtubeSpinner"></div>
+        </div>
+      </div>
+      <span class="youtube-status" id="youtubeStatus">Fetching audio stream…</span>
+      <div class="youtube-fallback hidden" id="youtubeFallback">
+        <p>⚠️ YouTube API temporarily unavailable.</p>
+        <button id="fallbackCaptureBtn" class="btn-accent">Try Tab Capture Instead</button>
+      </div>
+      <div class="youtube-guide hidden" id="youtubeGuide">
+        <div class="guide-header">
+          <span class="guide-icon">🎤</span>
+          <span class="guide-title">Use Tab Capture Instead</span>
+        </div>
+        <ol class="guide-steps">
+          <li>Open this video in a <strong>new browser tab</strong></li>
+          <li>Click <strong>"Capture from Tab"</strong> below</li>
+          <li>Select the YouTube tab when prompted</li>
+        </ol>
+        <p class="guide-note">ChordsFinder will capture 10 seconds of audio — enough for accurate chord detection.</p>
+        <button id="guideCaptureBtn" class="btn-accent guide-btn">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          Capture from Tab
+        </button>
+      </div>
+    </div>
+
+    <!-- Capture Panel -->
+    <div id="panelCapture" class="input-panel card card-padded" role="tabpanel" hidden webmcp-tool webmcp-tool-name="captureAudio" webmcp-tool-description="Capture live audio for chord detection. Use your microphone or record audio from another browser tab.">
+      <div class="capture-ready" id="captureReady">
+        <p class="capture-desc">Choose an audio source to capture:</p>
+        <div class="capture-options">
+          <button id="micCaptureBtn" class="capture-option">
+            <span class="capture-option-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="9" y="2" width="6" height="12" rx="3"/>
+                <path d="M5 10a7 7 0 0 0 14 0"/>
+                <line x1="12" y1="19" x2="12" y2="22"/>
+              </svg>
+            </span>
+            <span class="capture-option-label">Microphone</span>
+            <span class="capture-option-desc">Use your device mic</span>
+          </button>
+          <button id="captureStartBtn" class="capture-option">
+            <span class="capture-option-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                <line x1="8" y1="21" x2="16" y2="21"/>
+                <line x1="12" y1="17" x2="12" y2="21"/>
+              </svg>
+            </span>
+            <span class="capture-option-label">Tab Audio</span>
+            <span class="capture-option-desc">Capture from another tab</span>
+          </button>
+        </div>
+        <p class="capture-req">Requires HTTPS or localhost · Chrome 104+, Firefox 91+, Safari 17+</p>
+      </div>
+      <div class="capture-progress hidden" id="captureProgress">
+        <div class="capture-meter">
+          <div class="capture-meter-fill" id="captureMeterFill"></div>
+        </div>
+        <span class="capture-countdown" id="captureCountdown">Capturing… 0/10s</span>
+        <div class="spinner"></div>
+      </div>
+      <div class="capture-error hidden" id="captureError">
+        <p class="capture-error-msg" id="captureErrorMsg">—</p>
+        <button id="captureRetryBtn" class="capture-retry-btn">Try Again</button>
+      </div>
+    </div>
+
+    <!-- Loading -->
+    <div class="loading" id="loading">
+      <div class="spinner"></div>
+      <div class="loading-label">Analyzing <em id="loadingFileName">audio</em>…</div>
+    </div>
+
+    <!-- Key Display -->
+    <div class="result card" id="keyDisplay">
+      <div class="key-label">Detected Key</div>
+      <div class="key-value" id="keyValue">—</div>
+      <div class="key-strength" id="keyStrength"></div>
+    </div>
+
+    <!-- Result Card -->
+    <div class="result" id="result">
+      <div class="chord-label">Current Chord</div>
+      <div class="chord-main" id="chordValue">—</div>
+      <div class="chord-quality" id="chordQuality"></div>
+      <div class="chord-confidence" id="chordConfidence"></div>
+      <span class="result-source" id="resultSource"></span>
+
+      <!-- Chord progression -->
+      <div class="progression" id="progression">
+        <div class="progression-label">Progression</div>
+        <div class="progression-chords" id="progressionChords"></div>
+      </div>
+
+      <div class="actions">
+        <button id="analyzeAgain">Analyze another track</button>
+      </div>
+    </div>
+
+    <!-- Error -->
+    <div class="error" id="error"></div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer reveal">
+      <p>No uploads · No servers · <a href="https://github.com/fecolinhares/ChordsFinder" target="_blank" rel="noopener" aria-label="ChordsFinder on GitHub (open source)">GitHub</a></p>
+      <p class="footer-tag">Free online chord and key analyzer for musicians, producers, and DJs</p>
+    </footer>
+  </div>
+
+  <!-- Service Worker registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(() => {});
+      });
+    }
+  </script>
+
+  <script>
+    // ============================================
+    // CHORDS FINDER — Main Application
+    // ============================================
+
+    // --- Chord Quality Helpers ---
+    function parseChordQuality(chordStr) {
+      // chordStr comes as e.g. "C", "Dm", "G7", "Am7", "F#m", "Bb", "C#dim", "Daug"
+      if (!chordStr) return { root: '', quality: '' };
+      // Extract root note (1-2 chars, possibly with # or b)
+      const match = chordStr.match(/^([A-G][#b]?)(.*)$/);
+      if (!match) return { root: chordStr, quality: '' };
+      const root = match[1];
+      const suffix = match[2];
+      let qualityLabel = 'major';
+      let qualityShort = '';
+      if (suffix.startsWith('m') || suffix.startsWith('min')) {
+        qualityLabel = 'minor';
+        qualityShort = 'm';
+      } else if (suffix.startsWith('dim')) {
+        qualityLabel = 'diminished';
+        qualityShort = 'dim';
+      } else if (suffix.startsWith('aug') || suffix === '+') {
+        qualityLabel = 'augmented';
+        qualityShort = 'aug';
+      } else if (suffix.startsWith('7')) {
+        qualityLabel = 'dominant 7th';
+        qualityShort = '7';
+      } else if (suffix.startsWith('maj7') || suffix === 'M7') {
+        qualityLabel = 'major 7th';
+        qualityShort = 'maj7';
+      } else if (suffix.startsWith('m7') || suffix.startsWith('min7')) {
+        qualityLabel = 'minor 7th';
+        qualityShort = 'm7';
+      } else if (suffix) {
+        qualityLabel = suffix;
+        qualityShort = suffix;
+      } else {
+        qualityLabel = 'major';
+      }
+      return { root, quality: qualityLabel, suffix: qualityShort };
+    }
+
+    // --- Theme ---
+    const themeToggle = document.getElementById('themeToggle');
+    const html = document.documentElement;
+
+    const savedTheme = localStorage.getItem('chordsfinder-theme') || 'dark';
+    html.setAttribute('data-theme', savedTheme);
+    updateThemeIcons(savedTheme);
+
+    themeToggle.addEventListener('click', () => {
+      const current = html.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      html.setAttribute('data-theme', next);
+      localStorage.setItem('chordsfinder-theme', next);
+      updateThemeIcons(next);
+    });
+
+    function updateThemeIcons(theme) {
+      const sun = document.querySelector('.theme-icon-sun');
+      const moon = document.querySelector('.theme-icon-moon');
+      if (!sun || !moon) return;
+      if (theme === 'dark') {
+        sun.style.display = 'inline';
+        moon.style.display = 'none';
+      } else {
+        sun.style.display = 'none';
+        moon.style.display = 'inline';
+      }
+    }
+
+    // --- Scroll-triggered reveal ---
+    if ('IntersectionObserver' in window) {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.1 });
+      document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+    } else {
+      document.querySelectorAll('.reveal').forEach(el => el.classList.add('visible'));
+    }
+
+    // --- DOM refs ---
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    const uploadPanel = document.getElementById('uploadPanel');
+    const fileName = document.getElementById('fileName');
+    const fileSize = document.getElementById('fileSize');
+    const clearFile = document.getElementById('clearFile');
+    const analyzeBtn = document.getElementById('analyzeBtn');
+    const loading = document.getElementById('loading');
+    const loadingFileName = document.getElementById('loadingFileName');
+    const result = document.getElementById('result');
+    const chordValue = document.getElementById('chordValue');
+    const chordQuality = document.getElementById('chordQuality');
+    const chordConfidence = document.getElementById('chordConfidence');
+    const analyzeAgain = document.getElementById('analyzeAgain');
+    const errorEl = document.getElementById('error');
+    const keyDisplay = document.getElementById('keyDisplay');
+    const keyValue = document.getElementById('keyValue');
+    const keyStrength = document.getElementById('keyStrength');
+    const progression = document.getElementById('progression');
+    const progressionChords = document.getElementById('progressionChords');
+    const resultSource = document.getElementById('resultSource');
+
+    // YouTube + Capture DOM refs
+    const youtubePanel = document.getElementById('panelYoutube');
+    const capturePanel = document.getElementById('panelCapture');
+    const youtubeUrlInput = document.getElementById('youtubeUrlInput');
+    const youtubeAnalyzeBtn = document.getElementById('youtubeAnalyzeBtn');
+    const youtubeError = document.getElementById('youtubeError');
+    const youtubeLoading = document.getElementById('youtubeLoading');
+    const youtubeThumbImg = document.getElementById('youtubeThumbImg');
+    const youtubeTitle = document.getElementById('youtubeTitle');
+    const youtubeChannel = document.getElementById('youtubeChannel');
+    const youtubeStatus = document.getElementById('youtubeStatus');
+    const youtubeFallback = document.getElementById('youtubeFallback');
+    const fallbackCaptureBtn = document.getElementById('fallbackCaptureBtn');
+    const youtubeGuide = document.getElementById('youtubeGuide');
+    const guideCaptureBtn = document.getElementById('guideCaptureBtn');
+    const youtubeThumb = document.getElementById('youtubeThumb');
+    const youtubeSpinner = document.getElementById('youtubeSpinner');
+    const captureReady = document.getElementById('captureReady');
+    const captureStartBtn = document.getElementById('captureStartBtn');
+    const micCaptureBtn = document.getElementById('micCaptureBtn');
+    const captureProgress = document.getElementById('captureProgress');
+    const captureMeterFill = document.getElementById('captureMeterFill');
+    const captureCountdown = document.getElementById('captureCountdown');
+    const captureError = document.getElementById('captureError');
+    const captureErrorMsg = document.getElementById('captureErrorMsg');
+    const captureRetryBtn = document.getElementById('captureRetryBtn');
+
+    let currentFile = null;
+    let audioContext = null;
+
+    // --- Piped API Configuration ---
+    const PIPED_INSTANCES = [
+      'https://api.piped.private.coffee',
+      'https://pipedapi.adminforge.de',
+      'https://pipedapi.lunar.icu',
+    ];
+
+    // --- Helpers ---
+    function formatSize(bytes) {
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+      return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    }
+
+    function showError(msg) {
+      errorEl.textContent = msg;
+      errorEl.classList.add('visible');
+    }
+    function hideError() { errorEl.classList.remove('visible'); }
+
+    function resetUI() {
+      hideError();
+      loading.classList.remove('visible');
+      result.classList.remove('visible');
+      keyDisplay.classList.remove('visible');
+      keyDisplay.style.display = 'none';
+      progression.classList.remove('visible');
+      dropZone.classList.remove('hidden');
+      uploadPanel.classList.remove('visible');
+    }
+
+    // --- File handling ---
+    function handleFile(file) {
+      hideError();
+      const validTypes = ['audio/mpeg', 'audio/wav', 'audio/wave', 'audio/x-wav',
+                          'audio/flac', 'audio/ogg', 'audio/x-flac', 'audio/opus',
+                          'audio/webm', 'audio/aac', 'audio/mp4'];
+      const validExt = /\.(mp3|wav|flac|ogg|opus|webm|aac|m4a|mp4)$/i;
+
+      if (!validTypes.includes(file.type) && !validExt.test(file.name)) {
+        showError(`Unsupported file type "${file.type || 'unknown'}". Try MP3, WAV, FLAC, or OGG.`);
+        return;
+      }
+
+      if (file.size > 200 * 1024 * 1024) {
+        showError('File too large (max 200 MB). Try a smaller file.');
+        return;
+      }
+
+      currentFile = file;
+      fileName.textContent = file.name;
+      fileSize.textContent = formatSize(file.size);
+
+      hideError();
+      loading.classList.remove('visible');
+      result.classList.remove('visible');
+      keyDisplay.classList.remove('visible');
+      keyDisplay.style.display = 'none';
+      dropZone.classList.add('hidden');
+      uploadPanel.classList.add('visible');
+
+      startAnalysis(currentFile);
+    }
+
+    // Drop zone
+    dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.classList.add('drag-over');
+    });
+    dropZone.addEventListener('dragleave', () => {
+      dropZone.classList.remove('drag-over');
+    });
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('drag-over');
+      if (e.dataTransfer.files.length > 0) handleFile(e.dataTransfer.files[0]);
+    });
+    fileInput.addEventListener('change', () => {
+      if (fileInput.files.length > 0) handleFile(fileInput.files[0]);
+    });
+
+    clearFile.addEventListener('click', () => {
+      currentFile = null;
+      fileInput.value = '';
+      dropZone.classList.remove('hidden');
+      uploadPanel.classList.remove('visible');
+      resetUI();
+    });
+
+    // ============================================
+    // CHORD DETECTION via essentia.js TonalExtractor
+    // ============================================
+    async function startAnalysis(file) {
+      if (!file) return;
+      hideError();
+      loading.classList.add('visible');
+      uploadPanel.classList.remove('visible');
+      loadingFileName.textContent = file.name;
+
+      try {
+        const result = await detectChords(file);
+        displayResult(result);
+      } catch (err) {
+        loading.classList.remove('visible');
+        uploadPanel.classList.add('visible');
+        console.error('Chord detection error:', err);
+        showError(err.message || 'Failed to detect chords. The file may be corrupt or unsupported.');
+      }
+    }
+
+    analyzeBtn.addEventListener('click', () => {
+      startAnalysis(currentFile);
+    });
+
+    async function detectChords(file) {
+      const arrayBuffer = await file.arrayBuffer();
+      if (!audioContext) audioContext = new AudioContext();
+      const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+      const channelData = audioBuffer.getChannelData(0);
+      return runEssentiaChordAnalysis(channelData, audioBuffer.sampleRate);
+    }
+
+    // --- Shared essentia.js chord detection pipeline ---
+    async function resampleTo44100(channelData, inputSampleRate) {
+      if (inputSampleRate === 44100) return channelData;
+      const totalSamples = Math.ceil(channelData.length * 44100 / inputSampleRate);
+      const offlineCtx = new OfflineAudioContext(1, totalSamples, 44100);
+      const buffer = offlineCtx.createBuffer(1, channelData.length, inputSampleRate);
+      buffer.getChannelData(0).set(channelData);
+      const source = offlineCtx.createBufferSource();
+      source.buffer = buffer;
+      source.connect(offlineCtx.destination);
+      source.start();
+      const rendered = await offlineCtx.startRendering();
+      return rendered.getChannelData(0);
+    }
+
+    async function runEssentiaChordAnalysis(channelData, sampleRate) {
+      // Resample to 44100 Hz if needed
+      if (sampleRate && sampleRate !== 44100) {
+        channelData = await resampleTo44100(channelData, sampleRate);
+      }
+
+      const EssentiaConstructor = globalThis.Essentia;
+      const wasmFactory = globalThis.EssentiaWASM;
+      if (!EssentiaConstructor || !wasmFactory) {
+        throw new Error('essentia.js failed to load. Check your internet connection.');
+      }
+
+      const wasmModule = await wasmFactory();
+      const essentia = new EssentiaConstructor(wasmModule);
+
+      try {
+        const audioVector = essentia.arrayToVector(channelData);
+
+        // Step 1: Extract key using KeyExtractor
+        const keyResult = essentia.KeyExtractor(audioVector);
+        // keyResult = { key: 'C', scale: 'major', strength: 0.85 }
+
+        // Step 2: Compute HPCP (chroma features)
+        // We use HPCP via the full audio pipeline
+        // TonalExtractor gives us chords + key + HPCP in one shot
+        const tonalResult = essentia.TonalExtractor(audioVector);
+        // tonalResult = {
+        //   chords_progression: ['C', 'Am', 'F', 'G', ...],
+        //   chords_strength: [0.9, 0.7, 0.8, 0.6, ...],
+        //   chords_scale: 'major',
+        //   chords_key: 'C',
+        //   key_key: 'C',
+        //   key_scale: 'major',
+        //   key_strength: 0.85,
+        //   hpcp: [...]
+        // }
+
+        essentia.delete();
+
+        // Collect chords from progression
+        const rawChords = tonalResult.chords_progression || [];
+        const rawStrengths = tonalResult.chords_strength || [];
+        const key = tonalResult.key_key || keyResult.key || '—';
+        const scale = tonalResult.key_scale || keyResult.scale || 'major';
+        const strength = tonalResult.key_strength || keyResult.strength || 0;
+
+        // If no chords detected, throw meaningful error
+        if (rawChords.length === 0) {
+          throw new Error('No chords detected. The audio might be ambient, percussive, or speech without clear harmonic content.');
+        }
+
+        // Build chord objects with qualities parsed
+        const chords = rawChords.map((chord, i) => {
+          const parsed = parseChordQuality(chord);
+          return {
+            name: chord,
+            root: parsed.root,
+            quality: parsed.quality,
+            suffix: parsed.suffix,
+            strength: rawStrengths[i] || 0
+          };
+        });
+
+        // The most prominent chord is the first one
+        const mainChord = chords[0] || { name: '—', root: '—', quality: '', suffix: '', strength: 0 };
+
+        return {
+          key,
+          scale,
+          strength,
+          chords,
+          mainChord
+        };
+      } catch (err) {
+        essentia.delete();
+        throw err;
+      }
+    }
+
+    function displayResult({ key, scale, strength, chords, mainChord }) {
+      loading.classList.remove('visible');
+      keyDisplay.style.display = 'flex';
+      keyDisplay.classList.add('visible');
+
+      // Key display
+      const keyLabel = `${key} ${scale}`;
+      keyValue.textContent = keyLabel;
+      const strengthPct = Math.min(Math.round(strength * 100), 100);
+      keyStrength.textContent = `confidence ${strengthPct}%`;
+
+      // Main chord display with animated reveal
+      result.classList.add('visible');
+      chordValue.textContent = mainChord.root || '—';
+      chordQuality.textContent = mainChord.quality || '';
+      chordConfidence.className = 'chord-confidence';
+      const confPct = Math.min(Math.round(mainChord.strength * 100), 100);
+      if (confPct >= 70) {
+        chordConfidence.classList.add('confidence-good');
+      } else if (confPct >= 50) {
+        chordConfidence.classList.add('confidence-medium');
+      } else {
+        chordConfidence.classList.add('confidence-bad');
+      }
+      chordConfidence.textContent = `confidence ${confPct}%`;
+
+      // Source indicator
+      const modeLabels = { file: 'from file', youtube: 'from YouTube', capture: 'from tab capture', mic: 'from microphone' };
+      resultSource.textContent = modeLabels[currentMode] || '';
+
+      // Chord progression
+      if (chords && chords.length > 1) {
+        progression.classList.add('visible');
+        progressionChords.innerHTML = '';
+        chords.forEach((chord, i) => {
+          const el = document.createElement('div');
+          el.className = 'prog-chord' + (i === 0 ? ' active' : '');
+          el.innerHTML = `<span class="prog-chord-name">${chord.name}</span>
+                          <span class="prog-chord-time">${i + 1}</span>`;
+          progressionChords.appendChild(el);
+        });
+      }
+    }
+
+    // --- Input Mode Tabs ---
+    const MODES = {
+      file: { panel: document.getElementById('panelFile') },
+      youtube: { panel: youtubePanel },
+      capture: { panel: capturePanel }
+    };
+    let currentMode = 'file';
+
+    function switchMode(mode) {
+      if (mode === currentMode) return;
+      if (currentMode === 'file') { resetFileMode(); }
+      if (currentMode === 'youtube') { resetYoutubeMode(); }
+      if (currentMode === 'capture') { resetCaptureMode(); }
+      document.querySelectorAll('.input-tab').forEach(tab => {
+        tab.classList.toggle('active', tab.dataset.mode === mode);
+        tab.setAttribute('aria-selected', tab.dataset.mode === mode);
+      });
+      Object.keys(MODES).forEach(key => {
+        const panel = MODES[key].panel;
+        panel.classList.toggle('visible', key === mode);
+        panel.hidden = key !== mode;
+      });
+      currentMode = mode;
+    }
+
+    document.querySelectorAll('.input-tab').forEach(tab => {
+      tab.addEventListener('click', () => switchMode(tab.dataset.mode));
+    });
+
+    // --- YouTube URL ---
+    function extractYoutubeId(url) {
+      const patterns = [
+        /(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/,
+        /youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/,
+        /youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/,
+        /m\.youtube\.com\/watch\?v=([a-zA-Z0-9_-]{11})/
+      ];
+      for (const p of patterns) {
+        const m = url.match(p);
+        if (m) return m[1];
+      }
+      return null;
+    }
+
+    async function fetchWithTimeout(url, timeoutMs = 15000) {
+      const controller = new AbortController();
+      const id = setTimeout(() => controller.abort(), timeoutMs);
+      try {
+        return await fetch(url, { signal: controller.signal });
+      } finally {
+        clearTimeout(id);
+      }
+    }
+
+    class YoutubeBlockedError extends Error {
+      constructor(msg) { super(msg); this.name = 'YoutubeBlockedError'; }
+    }
+    class YoutubeExtractionError extends Error {
+      constructor(msg) { super(msg); this.name = 'YoutubeExtractionError'; }
+    }
+
+    async function fetchYoutubeAudio(videoId) {
+      let lastError = null;
+      for (const instance of PIPED_INSTANCES) {
+        try {
+          const streamRes = await fetchWithTimeout(`${instance}/streams/${videoId}`);
+          if (!streamRes.ok) {
+            try {
+              const errData = await streamRes.json();
+              if (errData.error && errData.error.includes('LOGIN_REQUIRED')) {
+                throw new YoutubeBlockedError(errData.message || 'YouTube is blocking this video.');
+              }
+            } catch (parseErr) {
+              if (parseErr instanceof YoutubeBlockedError) throw parseErr;
+            }
+            continue;
+          }
+
+          const data = await streamRes.json();
+
+          if (data.error) {
+            if (data.error.includes('LOGIN_REQUIRED')) {
+              throw new YoutubeBlockedError(data.message || 'YouTube is blocking this video.');
+            }
+            continue;
+          }
+
+          let audioUrl = null;
+          const audioStreams = data.audioStreams || [];
+          if (audioStreams.length > 0) {
+            const best = audioStreams.reduce((a, b) => (a.bitrate || 0) > (b.bitrate || 0) ? a : b);
+            audioUrl = best.url;
+          }
+
+          if (!audioUrl) {
+            const videoStreams = data.videoStreams || [];
+            const withAudio = videoStreams
+              .filter(s => !s.videoOnly)
+              .sort((a, b) => {
+                if (a.itag === 18) return -1;
+                if (b.itag === 18) return 1;
+                const aProxy = (a.url || '').includes('proxy.piped') ? 0 : 1;
+                const bProxy = (b.url || '').includes('proxy.piped') ? 0 : 1;
+                return aProxy - bProxy || ((a.height || 9999) - (b.height || 9999));
+              });
+            if (withAudio.length > 0) {
+              audioUrl = withAudio[0].url;
+            }
+          }
+
+          if (!audioUrl) continue;
+
+          const audioRes = await fetchWithTimeout(audioUrl);
+          if (!audioRes.ok) continue;
+
+          const arrayBuffer = await audioRes.arrayBuffer();
+          return {
+            arrayBuffer,
+            title: data.title || 'Unknown',
+            thumbnailUrl: data.thumbnailUrl || null,
+            uploader: data.uploader || 'Unknown'
+          };
+        } catch (err) {
+          if (err instanceof YoutubeBlockedError) throw err;
+          if (err.name === 'AbortError') { lastError = 'Request timed out'; continue; }
+          lastError = err.message;
+          continue;
+        }
+      }
+      throw new YoutubeExtractionError(lastError || 'All Piped instances failed');
+    }
+
+    async function fetchYoutubeMetadata(videoId) {
+      const url = `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`;
+      try {
+        const res = await fetch(url, { signal: AbortSignal.timeout(5000) });
+        if (!res.ok) return null;
+        return await res.json();
+      } catch {
+        return null;
+      }
+    }
+
+    youtubeAnalyzeBtn.addEventListener('click', async () => {
+      const url = youtubeUrlInput.value.trim();
+      if (!url) { showYoutubeError('Please paste a YouTube link.'); return; }
+
+      const videoId = extractYoutubeId(url);
+      if (!videoId) { showYoutubeError('Invalid YouTube URL.'); return; }
+
+      hideYoutubeError();
+      youtubeUrlInput.disabled = true;
+      youtubeAnalyzeBtn.disabled = true;
+      youtubeAnalyzeBtn.querySelector('span').textContent = 'Fetching…';
+      youtubeLoading.classList.remove('hidden');
+      youtubeStatus.textContent = 'Fetching audio stream…';
+      youtubeFallback.classList.add('hidden');
+      youtubeGuide.classList.add('hidden');
+
+      try {
+        const { arrayBuffer, title, thumbnailUrl, uploader } = await fetchYoutubeAudio(videoId);
+
+        youtubeTitle.textContent = title;
+        youtubeChannel.textContent = uploader;
+        if (thumbnailUrl) youtubeThumbImg.src = thumbnailUrl;
+
+        youtubeStatus.textContent = 'Downloaded! Analyzing chords…';
+
+        if (!audioContext) audioContext = new AudioContext();
+        const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+        const channelData = audioBuffer.getChannelData(0);
+        const chordsResult = await runEssentiaChordAnalysis(channelData, audioBuffer.sampleRate);
+        displayResult(chordsResult);
+
+        resetYoutubeMode();
+      } catch (err) {
+        youtubeSpinner.classList.add('hidden');
+        youtubeStatus.textContent = '';
+
+        const meta = await fetchYoutubeMetadata(videoId);
+        if (meta) {
+          youtubeTitle.textContent = meta.title || '—';
+          youtubeChannel.textContent = meta.author_name || '—';
+          if (meta.thumbnail_url) youtubeThumbImg.src = meta.thumbnail_url;
+        }
+
+        if (err instanceof YoutubeBlockedError) {
+          showYoutubeError('YouTube is blocking extraction for this video. Use Tab Capture below.');
+        } else {
+          showYoutubeError(err.message || 'Could not extract audio from this YouTube video.');
+        }
+        youtubeGuide.classList.remove('hidden');
+
+        youtubeUrlInput.disabled = false;
+        youtubeAnalyzeBtn.disabled = false;
+        youtubeAnalyzeBtn.querySelector('span').textContent = 'Retry';
+      }
+    });
+
+    fallbackCaptureBtn.addEventListener('click', () => { switchMode('capture'); });
+    guideCaptureBtn.addEventListener('click', () => { switchMode('capture'); });
+
+    youtubeUrlInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') youtubeAnalyzeBtn.click();
+    });
+
+    function showYoutubeError(msg) {
+      youtubeError.textContent = msg;
+      youtubeError.classList.remove('hidden');
+    }
+    function hideYoutubeError() {
+      youtubeError.classList.add('hidden');
+    }
+
+    // --- Tab Capture (getDisplayMedia) ---
+    const CAPTURE_DURATION = 10000;
+
+    function stereoToMono(buffer) {
+      const left = buffer.getChannelData(0);
+      const right = buffer.getChannelData(1);
+      const mono = new Float32Array(left.length);
+      for (let i = 0; i < left.length; i++) mono[i] = (left[i] + right[i]) / 2;
+      return mono;
+    }
+
+    async function startCaptureSession(stream, sourceLabel) {
+      const audioTrack = stream.getAudioTracks()[0];
+      if (!audioTrack) {
+        stream.getTracks().forEach(t => t.stop());
+        showCaptureError('No audio track found. Please check your source and try again.');
+        return;
+      }
+
+      stream.getVideoTracks().forEach(t => t.stop());
+      const audioStream = new MediaStream([audioTrack]);
+
+      captureReady.classList.add('hidden');
+      captureProgress.classList.remove('hidden');
+
+      const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
+        ? 'audio/webm;codecs=opus' : 'audio/webm';
+
+      const recorder = new MediaRecorder(audioStream, { mimeType });
+      const chunks = [];
+      recorder.ondataavailable = (e) => { if (e.data.size > 0) chunks.push(e.data); };
+
+      const blob = await new Promise((resolve, reject) => {
+        recorder.onstop = () => resolve(new Blob(chunks, { type: mimeType }));
+        recorder.onerror = (e) => reject(e.error);
+        recorder.start(100);
+
+        const startTime = Date.now();
+        const progressInterval = setInterval(() => {
+          const elapsed = Date.now() - startTime;
+          const pct = Math.min((elapsed / CAPTURE_DURATION) * 100, 100);
+          const secs = Math.floor(elapsed / 1000);
+          captureMeterFill.style.width = pct + '%';
+          captureCountdown.textContent = `Capturing… ${secs}/${CAPTURE_DURATION/1000}s`;
+          if (elapsed >= CAPTURE_DURATION) {
+            clearInterval(progressInterval);
+            recorder.stop();
+          }
+        }, 200);
+      });
+
+      audioTrack.stop();
+      captureProgress.classList.add('hidden');
+
+      if (blob.size < 1000) {
+        showCaptureError('Not enough audio captured. Make sure your source is playing audio and try again.');
+        return;
+      }
+
+      if (!audioContext) audioContext = new AudioContext();
+      const audioBuffer = await audioContext.decodeAudioData(await blob.arrayBuffer());
+      const channelData = audioBuffer.numberOfChannels > 1
+        ? stereoToMono(audioBuffer)
+        : audioBuffer.getChannelData(0);
+
+      const chordsResult = await runEssentiaChordAnalysis(channelData, audioBuffer.sampleRate);
+      const savedMode = currentMode;
+      currentMode = sourceLabel;
+      displayResult(chordsResult);
+      currentMode = savedMode;
+
+      captureReady.classList.remove('hidden');
+    }
+
+    captureStartBtn.addEventListener('click', async () => {
+      try {
+        const stream = await navigator.mediaDevices.getDisplayMedia({
+          video: { width: 1, height: 1 },
+          audio: true
+        });
+        await startCaptureSession(stream, 'capture');
+      } catch (err) {
+        captureProgress.classList.add('hidden');
+        if (err.name === 'NotAllowedError' || err.name === 'AbortError') {
+          showCaptureError('Tab capture cancelled. Try again when ready.');
+        } else if (err.name === 'NotFoundError') {
+          showCaptureError('No audio source found. Make sure the tab is playing audio.');
+        } else if (err instanceof TypeError && err.message.includes('getDisplayMedia')) {
+          showCaptureError('Tab capture not supported in this browser. Try Chrome, Firefox, or Safari with HTTPS.');
+        } else {
+          showCaptureError(err.message || 'Failed to capture tab audio.');
+        }
+        captureReady.classList.remove('hidden');
+      }
+    });
+
+    micCaptureBtn.addEventListener('click', async () => {
+      try {
+        if (!navigator.mediaDevices?.getUserMedia) {
+          showCaptureError('Microphone access is not supported in this browser.');
+          return;
+        }
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        await startCaptureSession(stream, 'mic');
+      } catch (err) {
+        captureProgress.classList.add('hidden');
+        if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+          showCaptureError('Microphone access denied. Allow mic access in your browser settings and try again.');
+        } else if (err.name === 'NotFoundError') {
+          showCaptureError('No microphone found. Connect a mic and try again.');
+        } else {
+          showCaptureError(err.message || 'Failed to access microphone.');
+        }
+        captureReady.classList.remove('hidden');
+      }
+    });
+
+    captureRetryBtn.addEventListener('click', () => {
+      captureError.classList.add('hidden');
+      captureReady.classList.remove('hidden');
+    });
+
+    function showCaptureError(msg) {
+      captureErrorMsg.textContent = msg;
+      captureError.classList.remove('hidden');
+    }
+
+    // --- Mode Reset Functions ---
+    function resetFileMode() {
+      currentFile = null;
+      fileInput.value = '';
+      dropZone.classList.remove('hidden');
+      uploadPanel.classList.remove('visible');
+      resetUI();
+    }
+
+    function resetYoutubeMode() {
+      youtubeUrlInput.disabled = false;
+      youtubeAnalyzeBtn.disabled = false;
+      youtubeAnalyzeBtn.querySelector('span').textContent = 'Analyze';
+      youtubeLoading.classList.add('hidden');
+      youtubeSpinner.classList.remove('hidden');
+      youtubeStatus.textContent = 'Fetching audio stream…';
+      youtubeFallback.classList.add('hidden');
+      youtubeGuide.classList.add('hidden');
+      youtubeError.classList.add('hidden');
+    }
+
+    function resetCaptureMode() {
+      captureReady.classList.remove('hidden');
+      captureProgress.classList.add('hidden');
+      captureError.classList.add('hidden');
+      captureMeterFill.style.width = '0%';
+    }
+
+    analyzeAgain.addEventListener('click', () => {
+      if (currentMode === 'file') resetFileMode();
+      else { hideError(); loading.classList.remove('visible'); result.classList.remove('visible'); keyDisplay.classList.remove('visible'); keyDisplay.style.display = 'none'; progression.classList.remove('visible'); }
+    });
+  </script>
+</body>
+</html>

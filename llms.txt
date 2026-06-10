@@ -1,0 +1,39 @@
+# ChordsFinder
+
+> Detect chords, key, and chord progression from any song — 100% in your browser.
+
+## Overview
+
+ChordsFinder is a static web app that detects **chords** and **musical key** from audio files, YouTube links, microphone input, or browser tab audio capture. Everything runs client-side via essentia.js WASM — no servers, no uploads, 100% private.
+
+## Features
+
+- **File Upload**: Drop MP3, WAV, FLAC, or OGG files — auto-analyzes on drop
+- **YouTube URL**: Paste a YouTube link — audio is fetched via public Piped API
+- **Tab Capture**: Record audio from any browser tab (Chrome/Firefox/Safari)
+- **Microphone**: Record 10 seconds from your mic
+- **Results**: Detected key (e.g., C major, A minor), current chord, chord progression, confidence scores
+
+## Usage
+
+### For users
+Open https://fecolinhares.github.io/ChordsFinder/ in any modern browser.
+
+### For AI agents
+This site exposes WebMCP Declarative API tools:
+- `uploadFile` — Upload audio file for chord detection
+- `analyzeYoutube` — Analyze chords from a YouTube URL
+- `captureAudio` — Capture live audio for chord detection
+
+## Tech Stack
+
+- **Audio processing**: essentia.js WASM (TonalExtractor + KeyExtractor)
+- **YouTube**: Piped API (public, no key)
+- **Capture**: Web Audio API, getUserMedia, getDisplayMedia
+- **Styling**: Rhythmcore design system (Inter, JetBrains Mono, OKLCH tokens)
+- **Offline**: Service Worker
+
+## Links
+
+- GitHub: https://github.com/fecolinhares/ChordsFinder
+- Live: https://fecolinhares.github.io/ChordsFinder/

@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://fecolinhares.github.io/ChordsFinder/sitemap.xml
+
+# No LLM-specific restrictions
