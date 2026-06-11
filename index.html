@@ -1838,9 +1838,16 @@
 
       // Limit progression length
       const prog = merged.slice(0, 8);
+      // Sanitize: garantir que confidences sejam números válidos entre 0 e 1
+      const sanitized = prog.map(p => ({
+        name: p.name,
+        score: (typeof p.score === 'number' && isFinite(p.score))
+          ? Math.max(0, Math.min(1, p.score))
+          : 0
+      }));
       return {
-        chordNames: prog.map(p => p.name),
-        confidences: prog.map(p => p.score)
+        chordNames: sanitized.map(p => p.name),
+        confidences: sanitized.map(p => p.score)
       };
     }
 
@@ -1923,8 +1930,12 @@
       // Detect chords
       const { chordNames, confidences } = detectChordsFromChroma(chromaFrames);
 
+      // Se confiança máxima for muito baixa (< 5%), cai no fallback key-only
+      // Evita mostrar acorde inventado pra áudio sem conteúdo harmônico claro
+      const maxConf = confidences.length > 0 ? Math.max(...confidences) : 0;
+
       // Build result (same format as before)
-      if (chordNames.length === 0) {
+      if (chordNames.length === 0 || maxConf < 0.05) {
         return {
           key, scale, strength,
           chords: [{ name: key + (scale === 'minor' ? 'm' : ''), root: key, quality: scale, suffix: scale === 'minor' ? 'm' : '', strength }],
