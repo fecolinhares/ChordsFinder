@@ -1754,9 +1754,15 @@
 
         safeDelete();
 
-        // Coleta resultados — TonalExtractor como fonte primária, KeyExtractor como fallback
-        const rawChords = tonalResult.chords_progression || [];
-        const rawStrengths = tonalResult.chords_strength || [];
+        // Coleta resultados com type checking — WASM pode retornar formatos diferentes
+        let rawChords = tonalResult.chords_progression || tonalResult.chords || [];
+        if (!Array.isArray(rawChords)) {
+          rawChords = rawChords ? [String(rawChords)] : [];
+        }
+        let rawStrengths = tonalResult.chords_strength || tonalResult.strength || [];
+        if (!Array.isArray(rawStrengths)) {
+          rawStrengths = rawStrengths ? [Number(rawStrengths) || 0] : [];
+        }
         const key = tonalResult.key_key || keyResult.key || '—';
         const scale = tonalResult.key_scale || keyResult.scale || 'major';
         const strength = tonalResult.key_strength || keyResult.strength || 0;
