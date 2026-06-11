@@ -1756,10 +1756,17 @@
 
         // Coleta resultados com type checking — WASM pode retornar formatos diferentes
         let rawChords = tonalResult.chords_progression || tonalResult.chords || [];
+        let rawStrengths = tonalResult.chords_strength || tonalResult.strength || [];
+
+        // TonalExtractor pode retornar array de objetos {name, strength} em vez de strings
+        if (Array.isArray(rawChords) && rawChords.length > 0 && typeof rawChords[0] === 'object') {
+          rawStrengths = rawChords.map(c => Number(c.strength) || 0);
+          rawChords = rawChords.map(c => String(c.name || c));
+        }
+
         if (!Array.isArray(rawChords)) {
           rawChords = rawChords ? [String(rawChords)] : [];
         }
-        let rawStrengths = tonalResult.chords_strength || tonalResult.strength || [];
         if (!Array.isArray(rawStrengths)) {
           rawStrengths = rawStrengths ? [Number(rawStrengths) || 0] : [];
         }
