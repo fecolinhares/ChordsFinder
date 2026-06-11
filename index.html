@@ -1748,22 +1748,35 @@
     }
 
     // --- Compute 12-bin chroma vector from magnitude spectrum ---
+    // Usa harmonic summation (como HPCP do Essentia): cada frequência contribui
+    // pra pitch class fundamental + 4 harmônicas (2x, 3x, 4x, 5x) com pesos decrescentes
+    // Aplica noise-floor removal (subtrait o mínimo, renormaliza) pra destacar picos
     function computeChroma(magnitude, sampleRate, frameSize) {
       const chroma = new Float64Array(12);
+      const H = [1, 2, 3, 4, 5];
+      const W = [1.0, 0.5, 0.25, 0.125, 0.0625];
       let total = 0;
       for (let bin = 0; bin < magnitude.length; bin++) {
         const freq = bin * sampleRate / frameSize;
-        if (freq < 65 || freq > 2100) continue; // musical range
-        // Map frequency to MIDI note number → pitch class
-        const midi = 12 * Math.log2(freq / 440) + 69;
-        const pc = ((Math.round(midi) % 12) + 12) % 12;
-        chroma[pc] += magnitude[bin];
-        total += magnitude[bin];
+        if (freq < 65 || freq > 5000) continue;
+        const mag = magnitude[bin];
+        for (let hi = 0; hi < H.length; hi++) {
+          const hf = freq * H[hi];
+          if (hf < 65 || hf > 5000) continue;
+          const midi = 12 * Math.log2(hf / 440) + 69;
+          const pc = ((Math.round(midi) % 12) + 12) % 12;
+          chroma[pc] += mag * W[hi];
+          total += mag * W[hi];
+        }
       }
-      // Normalize by total energy
-      if (total > 1e-10) {
-        for (let i = 0; i < 12; i++) chroma[i] /= total;
-      }
+      // Normalize
+      if (total > 1e-10) for (let i = 0; i < 12; i++) chroma[i] /= total;
+      // DC removal: subtrai o piso de ruído, renormaliza
+      // Isso destaca os picos cromáticos e remove energia uniforme entre classes
+      const minVal = Math.min(...chroma);
+      let dcTotal = 0;
+      for (let i = 0; i < 12; i++) { chroma[i] = Math.max(0, chroma[i] - minVal); dcTotal += chroma[i]; }
+      if (dcTotal > 1e-10) for (let i = 0; i < 12; i++) chroma[i] /= dcTotal;
       return chroma;
     }
 
@@ -1776,8 +1789,11 @@
     const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 
     // --- Score a chroma vector against all 24 chord templates ---
+    // Retorna score normalizado: quão melhor o melhor acorde é vs a média dos 24.
+    // Isso dá uma confiança mais intuitiva (0-1) independente da energia absoluta.
     function scoreChords(chroma) {
       let bestRoot = 0, bestQuality = 'major', bestScore = -1;
+      const allScores = [];
       for (let root = 0; root < 12; root++) {
         for (const quality of ['major', 'minor']) {
           const tmpl = CHORD_PROFILES[quality];
@@ -1785,6 +1801,7 @@
           for (let i = 0; i < 12; i++) {
             if (tmpl[i]) score += chroma[(root + i) % 12];
           }
+          allScores.push(score);
           if (score > bestScore) {
             bestScore = score;
             bestRoot = root;
@@ -1792,7 +1809,12 @@
           }
         }
       }
-      return { root: bestRoot, quality: bestQuality, score: bestScore };
+      // Normalizar: margem do melhor sobre a média dos 24 templates
+      const avg = allScores.reduce((a, b) => a + b, 0) / allScores.length;
+      const margin = Math.max(0, bestScore - avg);
+      // Se a margem é > 0.15, confiança ~100%. Se é 0, confiança 0%.
+      const normalized = Math.min(1, margin / 0.15);
+      return { root: bestRoot, quality: bestQuality, score: normalized };
     }
 
     // --- Detect chords across all chroma frames with temporal smoothing ---
@@ -1867,10 +1889,8 @@
     }
 
     async function runEssentiaChordAnalysis(channelData, sampleRate) {
-      // Resample to 44100 Hz if needed
-      if (sampleRate && sampleRate !== 44100) {
-        channelData = await resampleTo44100(channelData, sampleRate);
-      }
+      // Usamos a sample rate original (sem resampling) — o SR é passado
+      // pra computeChroma que mapeia frequências corretamente
 
       // 1. KeyExtractor via essentia (scalar outputs work correctly)
       const EssentiaConstructor = globalThis.Essentia;
@@ -1896,12 +1916,13 @@
       const strength = Number(keyResult.strength || 0);
 
       // 2. Manual chord detection via FFT + chroma + template matching
-      const FRAME_SIZE = 4096;
-      const HOP_SIZE = 2048;
-      const SR = 44100;
+      const SR = Math.round(sampleRate || 44100);
+      // Usar 8192 para melhor resolução de frequência (~5.4Hz/bin a 44.1kHz)
+      const FRAME_SIZE = 8192;
+      const HOP_SIZE = 4096;
       const maxFrames = Math.min(
         Math.floor((channelData.length - FRAME_SIZE) / HOP_SIZE) + 1,
-        120 // limit to ~4s of analysis for responsiveness
+        180 // ~16s com hop 4096
       );
 
       const chromaFrames = [];
