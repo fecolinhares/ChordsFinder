@@ -1456,11 +1456,11 @@
 
     // --- Chord Quality Helpers ---
     function parseChordQuality(chordStr) {
-      // chordStr comes as e.g. "C", "Dm", "G7", "Am7", "F#m", "Bb", "C#dim", "Daug"
       if (!chordStr) return { root: '', quality: '' };
-      // Extract root note (1-2 chars, possibly with # or b)
-      const match = chordStr.match(/^([A-G][#b]?)(.*)$/);
-      if (!match) return { root: chordStr, quality: '' };
+      // Garantir que estamos lidando com string
+      const s = String(chordStr);
+      const match = s.match(/^([A-G][#b]?)(.*)$/);
+      if (!match) return { root: s, quality: '' };
       const root = match[1];
       const suffix = match[2];
       let qualityLabel = 'major';
@@ -1763,9 +1763,10 @@
         if (!Array.isArray(rawStrengths)) {
           rawStrengths = rawStrengths ? [Number(rawStrengths) || 0] : [];
         }
-        const key = tonalResult.key_key || keyResult.key || '—';
-        const scale = tonalResult.key_scale || keyResult.scale || 'major';
-        const strength = tonalResult.key_strength || keyResult.strength || 0;
+        // Coerção defensiva: garantir que key/scale sejam strings
+        const key = String(tonalResult.key_key || keyResult.key || '—');
+        const scale = String(tonalResult.key_scale || keyResult.scale || 'major');
+        const strength = Number(tonalResult.key_strength || keyResult.strength || 0);
 
         // Se não achou acordes, tenta KeyExtractor como fallback e retorna só key
         if (rawChords.length === 0) {
@@ -1812,8 +1813,8 @@
 
       // Main chord display with animated reveal
       result.classList.add('visible');
-      chordValue.textContent = mainChord.root || '—';
-      chordQuality.textContent = mainChord.quality || '';
+      chordValue.textContent = String(mainChord.root || '—');
+      chordQuality.textContent = String(mainChord.quality || '');
       chordConfidence.className = 'chord-confidence';
       const confPct = Math.min(Math.round(mainChord.strength * 100), 100);
       if (confPct >= 70) {
