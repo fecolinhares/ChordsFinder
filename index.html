@@ -1752,16 +1752,67 @@
         const tonalVec = essentia.arrayToVector(channelData);
         const tonalResult = essentia.TonalExtractor(tonalVec);
 
+        // DEBUG: mostrar raw TonalExtractor output no DOM
+        try {
+          const debugEl = document.getElementById('debugOutput') || (() => {
+            const el = document.createElement('div');
+            el.id = 'debugOutput';
+            el.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:#111;color:#0f0;padding:8px;font:11px monospace;z-index:9999;max-height:200px;overflow:auto;white-space:pre-wrap;word-break:break-all';
+            document.body.appendChild(el);
+            return el;
+          })();
+          const keys = Object.keys(tonalResult);
+          let info = 'TonalExtractor keys: ' + keys.join(', ') + '\n';
+          info += 'chords_progression type: ' + typeof tonalResult.chords_progression + '\n';
+          info += 'chords type: ' + typeof tonalResult.chords + '\n';
+          if (Array.isArray(tonalResult.chords_progression)) {
+            info += 'chords_progression[0]: ' + JSON.stringify(tonalResult.chords_progression[0]) + '\n';
+            info += 'isObject: ' + (typeof tonalResult.chords_progression[0] === 'object');
+          }
+          if (Array.isArray(tonalResult.chords)) {
+            info += 'chords[0]: ' + JSON.stringify(tonalResult.chords[0]) + '\n';
+          }
+          if (tonalResult.chords_progression && !Array.isArray(tonalResult.chords_progression)) {
+            info += 'chords_progression raw: ' + JSON.stringify(tonalResult.chords_progression).slice(0,200) + '\n';
+          }
+          info += 'key_key: ' + JSON.stringify(tonalResult.key_key) + ' | keyResult.key: ' + JSON.stringify(keyResult.key);
+          debugEl.textContent = info;
+        } catch(de) {
+          console.log('Debug err:', de);
+        }
+
         safeDelete();
 
         // Coleta resultados com type checking — WASM pode retornar formatos diferentes
-        let rawChords = tonalResult.chords_progression || tonalResult.chords || [];
-        let rawStrengths = tonalResult.chords_strength || tonalResult.strength || [];
+        let rawChords = tonalResult.chords_progression !== undefined ? tonalResult.chords_progression :
+                        tonalResult.chords !== undefined ? tonalResult.chords : [];
+        let rawStrengths = tonalResult.chords_strength !== undefined ? tonalResult.chords_strength :
+                          tonalResult.strength !== undefined ? tonalResult.strength : [];
 
-        // TonalExtractor pode retornar array de objetos {name, strength} em vez de strings
+        // Caso 1: Array de objetos → extrair .name / .chord / .label
         if (Array.isArray(rawChords) && rawChords.length > 0 && typeof rawChords[0] === 'object') {
-          rawStrengths = rawChords.map(c => Number(c.strength) || 0);
-          rawChords = rawChords.map(c => String(c.name || c));
+          rawStrengths = rawChords.map(c => Number(c.strength || c.confidence || c.value || 0));
+          rawChords = rawChords.map(c => String(c.name || c.chord || c.label || c));
+        }
+
+        // Caso 2: Objeto array-like {0: "C", 1: "Am"} → converter para array
+        if (rawChords && typeof rawChords === 'object' && !Array.isArray(rawChords)) {
+          const keys = Object.keys(rawChords).filter(k => !isNaN(Number(k))).sort((a,b) => Number(a)-Number(b));
+          if (keys.length > 0) {
+            rawChords = keys.map(k => rawChords[k]);
+          } else {
+            rawChords = [];
+          }
+        }
+
+        // Caso 3: Objeto array-like para strengths também
+        if (rawStrengths && typeof rawStrengths === 'object' && !Array.isArray(rawStrengths)) {
+          const keys2 = Object.keys(rawStrengths).filter(k => !isNaN(Number(k))).sort((a,b) => Number(a)-Number(b));
+          if (keys2.length > 0) {
+            rawStrengths = keys2.map(k => rawStrengths[k]);
+          } else {
+            rawStrengths = [];
+          }
         }
 
         if (!Array.isArray(rawChords)) {
@@ -1769,6 +1820,13 @@
         }
         if (!Array.isArray(rawStrengths)) {
           rawStrengths = rawStrengths ? [Number(rawStrengths) || 0] : [];
+        }
+
+        // Filtrar nulls/undefined do array de chords
+        rawChords = rawChords.filter(c => c != null && c !== '');
+        // Se sobrou só um element com nome "[object Object]", é lixo — limpar
+        if (rawChords.length === 1 && rawChords[0] === '[object Object]') {
+          rawChords = [];
         }
         // Coerção defensiva: garantir que key/scale sejam strings
         const key = String(tonalResult.key_key || keyResult.key || '—');
