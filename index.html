@@ -1679,7 +1679,8 @@
     });
 
     // ============================================
-    // CHORD DETECTION via essentia.js TonalExtractor
+    // CHORD DETECTION — Hybrid Pipeline
+    //   essentia KeyExtractor (key/scale) + manual FFT/chroma + template matching
     // ============================================
     async function startAnalysis(file) {
       if (!file) return;
@@ -1711,7 +1712,139 @@
       return runEssentiaChordAnalysis(channelData, audioBuffer.sampleRate);
     }
 
-    // --- Shared essentia.js chord detection pipeline ---
+    // --- Radix-2 FFT (Cooley-Tukey) ---
+    function fft(signal) {
+      const N = signal.length;
+      const bits = Math.log2(N);
+      const re = new Float64Array(N);
+      const im = new Float64Array(N);
+      // Bit-reversal permutation
+      for (let i = 0; i < N; i++) {
+        let j = 0, t = i;
+        for (let b = 0; b < bits; b++) { j = (j << 1) | (t & 1); t >>= 1; }
+        re[j] = signal[i];
+      }
+      // FFT butterflies
+      for (let size = 2; size <= N; size <<= 1) {
+        const half = size >> 1;
+        const wRe = Math.cos(Math.PI / half);
+        const wIm = -Math.sin(Math.PI / half);
+        for (let i = 0; i < N; i += size) {
+          let wr = 1, wi = 0;
+          for (let j = 0; j < half; j++) {
+            const tRe = wr * re[i + j + half] - wi * im[i + j + half];
+            const tIm = wr * im[i + j + half] + wi * re[i + j + half];
+            re[i + j + half] = re[i + j] - tRe;
+            im[i + j + half] = im[i + j] - tIm;
+            re[i + j] += tRe;
+            im[i + j] += tIm;
+            const nwRe = wr * wRe - wi * wIm;
+            const nwIm = wr * wIm + wi * wRe;
+            wr = nwRe; wi = nwIm;
+          }
+        }
+      }
+      return { re, im };
+    }
+
+    // --- Compute 12-bin chroma vector from magnitude spectrum ---
+    function computeChroma(magnitude, sampleRate, frameSize) {
+      const chroma = new Float64Array(12);
+      let total = 0;
+      for (let bin = 0; bin < magnitude.length; bin++) {
+        const freq = bin * sampleRate / frameSize;
+        if (freq < 65 || freq > 2100) continue; // musical range
+        // Map frequency to MIDI note number → pitch class
+        const midi = 12 * Math.log2(freq / 440) + 69;
+        const pc = ((Math.round(midi) % 12) + 12) % 12;
+        chroma[pc] += magnitude[bin];
+        total += magnitude[bin];
+      }
+      // Normalize by total energy
+      if (total > 1e-10) {
+        for (let i = 0; i < 12; i++) chroma[i] /= total;
+      }
+      return chroma;
+    }
+
+    // --- Chord templates (12 major + 12 minor) ---
+    // [C, C#, D, D#, E, F, F#, G, G#, A, A#, B]
+    const CHORD_PROFILES = {
+      major: [1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0],
+      minor: [1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0],
+    };
+    const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+
+    // --- Score a chroma vector against all 24 chord templates ---
+    function scoreChords(chroma) {
+      let bestRoot = 0, bestQuality = 'major', bestScore = -1;
+      for (let root = 0; root < 12; root++) {
+        for (const quality of ['major', 'minor']) {
+          const tmpl = CHORD_PROFILES[quality];
+          let score = 0;
+          for (let i = 0; i < 12; i++) {
+            if (tmpl[i]) score += chroma[(root + i) % 12];
+          }
+          if (score > bestScore) {
+            bestScore = score;
+            bestRoot = root;
+            bestQuality = quality;
+          }
+        }
+      }
+      return { root: bestRoot, quality: bestQuality, score: bestScore };
+    }
+
+    // --- Detect chords across all chroma frames with temporal smoothing ---
+    function detectChordsFromChroma(chromaFrames) {
+      if (!chromaFrames || chromaFrames.length === 0) {
+        return { chordNames: [], confidences: [] };
+      }
+
+      const frameResults = chromaFrames.map(cf => scoreChords(cf));
+      const WINDOW = 3; // temporal smoothing window
+
+      const smoothed = [];
+      for (let i = 0; i < frameResults.length; i++) {
+        // Average scores over sliding window
+        const agg = {};
+        let count = 0;
+        for (let w = -WINDOW; w <= WINDOW; w++) {
+          const idx = i + w;
+          if (idx >= 0 && idx < frameResults.length) {
+            const r = frameResults[idx];
+            const key = r.root + '|' + r.quality;
+            agg[key] = (agg[key] || 0) + r.score;
+            count++;
+          }
+        }
+        const best = Object.entries(agg).sort((a, b) => b[1] - a[1])[0];
+        if (best) {
+          const [rootStr, quality] = best[0].split('|');
+          smoothed.push({ root: parseInt(rootStr), quality, score: best[1] / count });
+        }
+      }
+
+      // Merge consecutive identical chords and pick top ~8 for progression
+      const merged = [];
+      for (const r of smoothed) {
+        const name = NOTE_NAMES[r.root] + (r.quality === 'minor' ? 'm' : '');
+        if (merged.length > 0 && merged[merged.length - 1].name === name) {
+          merged[merged.length - 1].score = Math.max(merged[merged.length - 1].score, r.score);
+        } else {
+          merged.push({ name, score: r.score, root: NOTE_NAMES[r.root], quality: r.quality });
+        }
+      }
+
+      // Limit progression length
+      const prog = merged.slice(0, 8);
+      return {
+        chordNames: prog.map(p => p.name),
+        confidences: prog.map(p => p.score)
+      };
+    }
+
+    // --- Shared hybrid chord detection pipeline ---
     async function resampleTo44100(channelData, inputSampleRate) {
       if (inputSampleRate === 44100) return channelData;
       const totalSamples = Math.ceil(channelData.length * 44100 / inputSampleRate);
@@ -1732,137 +1865,87 @@
         channelData = await resampleTo44100(channelData, sampleRate);
       }
 
+      // 1. KeyExtractor via essentia (scalar outputs work correctly)
       const EssentiaConstructor = globalThis.Essentia;
       const wasmFactory = globalThis.EssentiaWASM;
       if (!EssentiaConstructor || !wasmFactory) {
         throw new Error('essentia.js failed to load. Check your internet connection.');
       }
-
       const wasmModule = await wasmFactory();
       const essentia = new EssentiaConstructor(wasmModule);
       let deleted = false;
       const safeDelete = () => { if (!deleted) { try { essentia.delete(); } catch(e) {} deleted = true; } };
 
+      let keyResult;
       try {
-        // KeyExtractor — cria vetor próprio (cada algoritmo consome o vector)
         const keyVec = essentia.arrayToVector(channelData);
-        const keyResult = essentia.KeyExtractor(keyVec);
-
-        // TonalExtractor — vetor SEPARADO para evitar "instance already deleted"
-        const tonalVec = essentia.arrayToVector(channelData);
-        const tonalResult = essentia.TonalExtractor(tonalVec);
-
-        // DEBUG: mostrar raw TonalExtractor output no DOM
-        try {
-          const debugEl = document.getElementById('debugOutput') || (() => {
-            const el = document.createElement('div');
-            el.id = 'debugOutput';
-            el.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:#111;color:#0f0;padding:8px;font:11px monospace;z-index:9999;max-height:200px;overflow:auto;white-space:pre-wrap;word-break:break-all';
-            document.body.appendChild(el);
-            return el;
-          })();
-          const keys = Object.keys(tonalResult);
-          let info = 'TonalExtractor keys: ' + keys.join(', ') + '\n';
-          info += 'chords_progression type: ' + typeof tonalResult.chords_progression + '\n';
-          info += 'chords type: ' + typeof tonalResult.chords + '\n';
-          if (Array.isArray(tonalResult.chords_progression)) {
-            info += 'chords_progression[0]: ' + JSON.stringify(tonalResult.chords_progression[0]) + '\n';
-            info += 'isObject: ' + (typeof tonalResult.chords_progression[0] === 'object');
-          }
-          if (Array.isArray(tonalResult.chords)) {
-            info += 'chords[0]: ' + JSON.stringify(tonalResult.chords[0]) + '\n';
-          }
-          if (tonalResult.chords_progression && !Array.isArray(tonalResult.chords_progression)) {
-            info += 'chords_progression raw: ' + JSON.stringify(tonalResult.chords_progression).slice(0,200) + '\n';
-          }
-          info += 'key_key: ' + JSON.stringify(tonalResult.key_key) + ' | keyResult.key: ' + JSON.stringify(keyResult.key);
-          debugEl.textContent = info;
-        } catch(de) {
-          console.log('Debug err:', de);
-        }
-
+        keyResult = essentia.KeyExtractor(keyVec);
+      } finally {
         safeDelete();
-
-        // Coleta resultados com type checking — WASM pode retornar formatos diferentes
-        let rawChords = tonalResult.chords_progression !== undefined ? tonalResult.chords_progression :
-                        tonalResult.chords !== undefined ? tonalResult.chords : [];
-        let rawStrengths = tonalResult.chords_strength !== undefined ? tonalResult.chords_strength :
-                          tonalResult.strength !== undefined ? tonalResult.strength : [];
-
-        // Caso 1: Array de objetos → extrair .name / .chord / .label
-        if (Array.isArray(rawChords) && rawChords.length > 0 && typeof rawChords[0] === 'object') {
-          rawStrengths = rawChords.map(c => Number(c.strength || c.confidence || c.value || 0));
-          rawChords = rawChords.map(c => String(c.name || c.chord || c.label || c));
-        }
-
-        // Caso 2: Objeto array-like {0: "C", 1: "Am"} → converter para array
-        if (rawChords && typeof rawChords === 'object' && !Array.isArray(rawChords)) {
-          const keys = Object.keys(rawChords).filter(k => !isNaN(Number(k))).sort((a,b) => Number(a)-Number(b));
-          if (keys.length > 0) {
-            rawChords = keys.map(k => rawChords[k]);
-          } else {
-            rawChords = [];
-          }
-        }
-
-        // Caso 3: Objeto array-like para strengths também
-        if (rawStrengths && typeof rawStrengths === 'object' && !Array.isArray(rawStrengths)) {
-          const keys2 = Object.keys(rawStrengths).filter(k => !isNaN(Number(k))).sort((a,b) => Number(a)-Number(b));
-          if (keys2.length > 0) {
-            rawStrengths = keys2.map(k => rawStrengths[k]);
-          } else {
-            rawStrengths = [];
-          }
-        }
-
-        if (!Array.isArray(rawChords)) {
-          rawChords = rawChords ? [String(rawChords)] : [];
-        }
-        if (!Array.isArray(rawStrengths)) {
-          rawStrengths = rawStrengths ? [Number(rawStrengths) || 0] : [];
-        }
-
-        // Filtrar nulls/undefined do array de chords
-        rawChords = rawChords.filter(c => c != null && c !== '');
-        // Se sobrou só um element com nome "[object Object]", é lixo — limpar
-        if (rawChords.length === 1 && rawChords[0] === '[object Object]') {
-          rawChords = [];
-        }
-        // Coerção defensiva: garantir que key/scale sejam strings
-        const key = String(tonalResult.key_key || keyResult.key || '—');
-        const scale = String(tonalResult.key_scale || keyResult.scale || 'major');
-        const strength = Number(tonalResult.key_strength || keyResult.strength || 0);
-
-        // Se não achou acordes, tenta KeyExtractor como fallback e retorna só key
-        if (rawChords.length === 0) {
-          return {
-            key,
-            scale,
-            strength,
-            chords: [{ name: key + (scale === 'minor' ? 'm' : ''), root: key, quality: scale, suffix: scale === 'minor' ? 'm' : '', strength }],
-            mainChord: { name: key + (scale === 'minor' ? 'm' : ''), root: key, quality: scale, suffix: scale === 'minor' ? 'm' : '', strength }
-          };
-        }
-
-        // Build chord objects with qualities parsed
-        const chords = rawChords.map((chord, i) => {
-          const parsed = parseChordQuality(chord);
-          return {
-            name: chord,
-            root: parsed.root,
-            quality: parsed.quality,
-            suffix: parsed.suffix,
-            strength: rawStrengths[i] || 0
-          };
-        });
-
-        const mainChord = chords[0] || { name: '—', root: '—', quality: '', suffix: '', strength: 0 };
-
-        return { key, scale, strength, chords, mainChord };
-      } catch (err) {
-        safeDelete();
-        throw err;
       }
+
+      const key = String(keyResult.key || '—');
+      const scale = String(keyResult.scale || 'major');
+      const strength = Number(keyResult.strength || 0);
+
+      // 2. Manual chord detection via FFT + chroma + template matching
+      const FRAME_SIZE = 4096;
+      const HOP_SIZE = 2048;
+      const SR = 44100;
+      const maxFrames = Math.min(
+        Math.floor((channelData.length - FRAME_SIZE) / HOP_SIZE) + 1,
+        120 // limit to ~4s of analysis for responsiveness
+      );
+
+      const chromaFrames = [];
+      for (let i = 0; i < maxFrames; i++) {
+        const off = i * HOP_SIZE;
+        // Hann window + extract frame
+        const frame = new Float64Array(FRAME_SIZE);
+        for (let j = 0; j < FRAME_SIZE; j++) {
+          const s = channelData[off + j] || 0;
+          const hann = 0.5 * (1 - Math.cos(2 * Math.PI * j / (FRAME_SIZE - 1)));
+          frame[j] = s * hann;
+        }
+        // FFT
+        const { re, im } = fft(frame);
+        // Magnitude (positive frequencies only)
+        const half = FRAME_SIZE >> 1;
+        const mag = new Float64Array(half);
+        for (let j = 0; j < half; j++) {
+          mag[j] = Math.sqrt(re[j] * re[j] + im[j] * im[j]);
+        }
+        // Chroma
+        const chroma = computeChroma(mag, SR, FRAME_SIZE);
+        chromaFrames.push(chroma);
+      }
+
+      // Detect chords
+      const { chordNames, confidences } = detectChordsFromChroma(chromaFrames);
+
+      // Build result (same format as before)
+      if (chordNames.length === 0) {
+        return {
+          key, scale, strength,
+          chords: [{ name: key + (scale === 'minor' ? 'm' : ''), root: key, quality: scale, suffix: scale === 'minor' ? 'm' : '', strength }],
+          mainChord: { name: key + (scale === 'minor' ? 'm' : ''), root: key, quality: scale, suffix: scale === 'minor' ? 'm' : '', strength }
+        };
+      }
+
+      const chords = chordNames.map((name, i) => {
+        const parsed = parseChordQuality(name);
+        return {
+          name,
+          root: parsed.root,
+          quality: parsed.quality,
+          suffix: parsed.suffix,
+          strength: Math.min(confidences[i] || 0, 1)
+        };
+      });
+
+      const mainChord = chords[0] || { name: '—', root: '—', quality: '', suffix: '', strength: 0 };
+
+      return { key, scale, strength, chords, mainChord };
     }
 
     function displayResult({ key, scale, strength, chords, mainChord }) {
