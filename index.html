@@ -1740,41 +1740,36 @@
 
       const wasmModule = await wasmFactory();
       const essentia = new EssentiaConstructor(wasmModule);
+      let deleted = false;
+      const safeDelete = () => { if (!deleted) { try { essentia.delete(); } catch(e) {} deleted = true; } };
 
       try {
-        const audioVector = essentia.arrayToVector(channelData);
+        // KeyExtractor — cria vetor próprio (cada algoritmo consome o vector)
+        const keyVec = essentia.arrayToVector(channelData);
+        const keyResult = essentia.KeyExtractor(keyVec);
 
-        // Step 1: Extract key using KeyExtractor
-        const keyResult = essentia.KeyExtractor(audioVector);
-        // keyResult = { key: 'C', scale: 'major', strength: 0.85 }
+        // TonalExtractor — vetor SEPARADO para evitar "instance already deleted"
+        const tonalVec = essentia.arrayToVector(channelData);
+        const tonalResult = essentia.TonalExtractor(tonalVec);
 
-        // Step 2: Compute HPCP (chroma features)
-        // We use HPCP via the full audio pipeline
-        // TonalExtractor gives us chords + key + HPCP in one shot
-        const tonalResult = essentia.TonalExtractor(audioVector);
-        // tonalResult = {
-        //   chords_progression: ['C', 'Am', 'F', 'G', ...],
-        //   chords_strength: [0.9, 0.7, 0.8, 0.6, ...],
-        //   chords_scale: 'major',
-        //   chords_key: 'C',
-        //   key_key: 'C',
-        //   key_scale: 'major',
-        //   key_strength: 0.85,
-        //   hpcp: [...]
-        // }
+        safeDelete();
 
-        essentia.delete();
-
-        // Collect chords from progression
+        // Coleta resultados — TonalExtractor como fonte primária, KeyExtractor como fallback
         const rawChords = tonalResult.chords_progression || [];
         const rawStrengths = tonalResult.chords_strength || [];
         const key = tonalResult.key_key || keyResult.key || '—';
         const scale = tonalResult.key_scale || keyResult.scale || 'major';
         const strength = tonalResult.key_strength || keyResult.strength || 0;
 
-        // If no chords detected, throw meaningful error
+        // Se não achou acordes, tenta KeyExtractor como fallback e retorna só key
         if (rawChords.length === 0) {
-          throw new Error('No chords detected. The audio might be ambient, percussive, or speech without clear harmonic content.');
+          return {
+            key,
+            scale,
+            strength,
+            chords: [{ name: key + (scale === 'minor' ? 'm' : ''), root: key, quality: scale, suffix: scale === 'minor' ? 'm' : '', strength }],
+            mainChord: { name: key + (scale === 'minor' ? 'm' : ''), root: key, quality: scale, suffix: scale === 'minor' ? 'm' : '', strength }
+          };
         }
 
         // Build chord objects with qualities parsed
@@ -1789,18 +1784,11 @@
           };
         });
 
-        // The most prominent chord is the first one
         const mainChord = chords[0] || { name: '—', root: '—', quality: '', suffix: '', strength: 0 };
 
-        return {
-          key,
-          scale,
-          strength,
-          chords,
-          mainChord
-        };
+        return { key, scale, strength, chords, mainChord };
       } catch (err) {
-        essentia.delete();
+        safeDelete();
         throw err;
       }
     }

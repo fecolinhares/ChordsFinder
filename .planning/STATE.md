@@ -28,3 +28,8 @@
 - Pulse animation accent on detected chord
 
 ---
+
+## Quick Tasks Completed
+| Date | Task | Description |
+|------|------|-------------|
+| 2026-06-11 | Fix EssentiaJS double-vector | Separate vectors for KeyExtractor/TonalExtractor, safeDelete() guard, graceful fallback |
