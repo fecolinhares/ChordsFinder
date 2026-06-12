@@ -24,7 +24,7 @@
 | 🔊 Volume Control | Adjustable gain slider |
 | 📁 File Upload | Drag-and-drop MP3, WAV, FLAC, OGG — auto-analyzes |
 | 🔗 YouTube Links | Paste any YouTube URL — fetches audio via Piped API |
-| 🎤 Microphone Capture | 10-second recording via getUserMedia |
+| 🎤 Microphone Capture | 5–30s recording via getUserMedia, configurable duration |
 | 🖥️ Tab Capture | Capture audio from any browser tab via getDisplayMedia |
 | 🔒 100% Private | All processing client-side — audio never leaves your device |
 | 🌙 Dark/Light Theme | Persistent theme toggle with localStorage |
