@@ -1,4 +1,4 @@
-# Phase 1.1 — Hybrid Chord Detection Pipeline
+# Phase 1 — Hybrid Chord Detection Pipeline
 
 ## Goal
 Replace the broken essentia.js TonalExtractor (which returns `{}` for ALL vector outputs due to a WASM marshalling bug) with a hybrid approach: essentia KeyExtractor for key + manual FFT/chroma analysis for chord detection.
