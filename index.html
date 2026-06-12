@@ -1047,15 +1047,13 @@
     .chord-confidence.confidence-medium { color: var(--accent); }
     .chord-confidence.confidence-bad { color: var(--error); }
 
-    /* --- Chord Progression --- */
+    /* --- Chord Progression Carousel --- */
     .progression {
       width: 100%;
       margin-top: var(--space-3);
       display: none;
-      flex-direction: column;
-      gap: var(--space-3);
     }
-    .progression.visible { display: flex; }
+    .progression.visible { display: block; }
 
     .progression-label {
       font-family: var(--font-mono);
@@ -1065,40 +1063,73 @@
       text-transform: uppercase;
       letter-spacing: 0.08em;
       text-align: center;
+      margin-bottom: var(--space-2);
     }
 
-    .progression-chords {
-      display: flex;
-      flex-wrap: wrap;
-      gap: var(--space-2);
-      justify-content: center;
+    .progression-track {
+      overflow: hidden;
+      width: 100%;
+      position: relative;
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+      white-space: nowrap;
     }
-    .prog-chord {
+    .progression-track::before,
+    .progression-track::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 48px;
+      z-index: 1;
+      pointer-events: none;
+    }
+    .progression-track::before {
+      left: 0;
+      background: linear-gradient(to right, var(--bg-app) 0%, transparent 100%);
+    }
+    .progression-track::after {
+      right: 0;
+      background: linear-gradient(to left, var(--bg-app) 0%, transparent 100%);
+    }
+
+    .progression-window {
       display: flex;
-      flex-direction: column;
+      gap: var(--space-2);
+      padding: var(--space-1) var(--space-4);
+      width: max-content;
       align-items: center;
-      gap: 2px;
-      padding: var(--space-2) var(--space-3);
+    }
+
+    .prog-pill {
+      flex: 0 0 auto;
+      width: 60px;
+      padding: var(--space-2) var(--space-1);
       border-radius: var(--radius-control);
       background: var(--bg-surface);
       border: 1px solid var(--border-subtle);
-      min-width: 56px;
-      transition: background var(--transition-fast), border-color var(--transition-fast);
+      text-align: center;
+      transition: opacity var(--transition-fast), transform var(--transition-fast),
+                  background var(--transition-fast), border-color var(--transition-fast);
+      opacity: 0.4;
+      cursor: default;
     }
-    .prog-chord.active {
+    .prog-pill.past {
+      opacity: 0.25;
+    }
+    .prog-pill.current {
+      opacity: 1;
       background: var(--accent-dim);
       border-color: var(--accent);
+      transform: scale(1.15);
+      box-shadow: 0 0 20px color-mix(in srgb, var(--accent) 30%, transparent);
     }
-    .prog-chord-name {
+    .prog-pill-name {
       font-family: var(--font-mono);
       font-size: var(--text-sm);
       font-weight: 600;
       color: var(--text-primary);
-    }
-    .prog-chord-time {
-      font-family: var(--font-mono);
-      font-size: 10px;
-      color: var(--text-tertiary);
+      white-space: nowrap;
     }
 
     /* --- Loading Inner (YouTube) --- */
@@ -1223,9 +1254,9 @@
       .capture-option-icon svg { width: 18px; height: 18px; }
       .capture-option-desc { display: none; }
       .key-value { font-size: var(--text-xl); }
-      .progression-chords { gap: var(--space-1); }
-      .prog-chord { min-width: 44px; padding: var(--space-1) var(--space-2); }
-      .prog-chord-name { font-size: var(--text-xs); }
+      .progression-window { gap: var(--space-1); }
+      .prog-pill { width: 44px; padding: var(--space-1) var(--space-1); }
+      .prog-pill-name { font-size: var(--text-xs); }
     }
 
     /* --- Reduced Motion --- */
@@ -1729,7 +1760,9 @@
       <!-- Progression (inside player) -->
       <div class="progression" id="progression">
         <div class="progression-label">Progression</div>
-        <div class="progression-chords" id="progressionChords"></div>
+        <div class="progression-track" id="progressionTrack">
+          <div class="progression-window" id="progressionWindow"></div>
+        </div>
       </div>
     </div>
 
@@ -1872,7 +1905,8 @@
     const keyValue = document.getElementById('keyValue');
     const keyStrength = document.getElementById('keyStrength');
     const progression = document.getElementById('progression');
-    const progressionChords = document.getElementById('progressionChords');
+    const progressionTrack = document.getElementById('progressionTrack');
+    const progressionWindow = document.getElementById('progressionWindow');
     const resultSource = document.getElementById('resultSource');
 
     // YouTube + Capture DOM refs
@@ -2370,20 +2404,10 @@
       // Init timeline canvas
       initTimeline();
 
-      // Show progression pills
-      if (chords && chords.length > 1) {
+      // Show progression carousel
+      if (chordRegions && chordRegions.length > 1) {
         progression.classList.add('visible');
-        progressionChords.innerHTML = '';
-        chords.forEach((chord, i) => {
-          const el = document.createElement('div');
-          el.className = 'prog-chord';
-          if (i === 0) el.classList.add('active');
-          el.dataset.index = i;
-          const name = chord.root + (chord.suffix || '');
-          el.innerHTML = `<span class="prog-chord-name">${name}</span>
-                          <span class="prog-chord-time">${i + 1}</span>`;
-          progressionChords.appendChild(el);
-        });
+        renderProgressionCarousel();
       }
 
       // Update current chord display
@@ -2407,6 +2431,69 @@
         void ccdChord.offsetWidth;
         ccdChord.classList.add('transition');
       }
+    }
+
+    // ============================================
+    // PROGRESSION CAROUSEL
+    // ============================================
+
+    function renderProgressionCarousel() {
+      progressionWindow.innerHTML = '';
+      chordRegions.forEach(function(region, i) {
+        var pill = document.createElement('div');
+        pill.className = 'prog-pill';
+        pill.dataset.index = i;
+        pill.textContent = region.name;
+        progressionWindow.appendChild(pill);
+      });
+      // Center on first chord
+      centerProgPill(0, chordRegions);
+    }
+
+    function findCurrentRegionIndex(time, regions) {
+      if (!regions || regions.length === 0) return 0;
+      for (var i = 0; i < regions.length; i++) {
+        if (time >= regions[i].startTime && time < regions[i].endTime) {
+          return i;
+        }
+      }
+      // If between regions, find closest
+      for (var j = 0; j < regions.length; j++) {
+        if (time < regions[j].startTime) {
+          return Math.max(0, j - 1);
+        }
+      }
+      return regions.length - 1;
+    }
+
+    function centerProgPill(index, regions) {
+      if (!regions || regions.length === 0) return;
+      var pills = progressionWindow.querySelectorAll('.prog-pill');
+      pills.forEach(function(el, i) {
+        el.classList.toggle('current', i === index);
+        el.classList.toggle('past', i < index);
+      });
+
+      var target = pills[index];
+      if (!target || !progressionTrack) return;
+
+      var trackWidth = progressionTrack.clientWidth;
+      var pillOffset = target.offsetLeft;
+      var pillWidth = target.offsetWidth;
+      var targetScroll = pillOffset - (trackWidth / 2) + (pillWidth / 2);
+
+      // Clamp to bounds
+      var maxScroll = progressionWindow.scrollWidth - trackWidth;
+      targetScroll = Math.max(0, Math.min(targetScroll, maxScroll));
+
+      progressionTrack.scrollLeft = targetScroll;
+    }
+
+    function updateProgressionCarousel(time, regions) {
+      if (!regions || regions.length < 2) return;
+      if (!progression.classList.contains('visible')) return;
+      var idx = findCurrentRegionIndex(time, regions);
+      centerProgPill(idx, regions);
     }
 
     // ============================================
@@ -2604,7 +2691,8 @@
           playbackOffset = 0;
           drawTimeline(0);
           updateCurrentChord(chordRegions[0] || null);
-          document.querySelectorAll('.prog-chord').forEach(function(el) { el.classList.remove('active'); });
+          progressionWindow.querySelectorAll('.prog-pill').forEach(function(el) { el.classList.remove('current', 'past'); });
+          centerProgPill(0, chordRegions);
         }
       };
     }
@@ -2663,11 +2751,8 @@
       }
       updateCurrentChord(region || null);
 
-      // Update progression highlight
-      var progIndex = Math.min(Math.floor((clamped / dur) * 8), 7);
-      document.querySelectorAll('.prog-chord').forEach(function(el, i) {
-        el.classList.toggle('active', i === progIndex);
-      });
+      // Update progression carousel
+      updateProgressionCarousel(clamped, chordRegions);
 
       if (wasPlaying) { startPlayback(); }
 
@@ -2730,13 +2815,8 @@
           ccdTime.textContent = m1 + ':' + String(s1).padStart(2, '0') + ' - ' + m2 + ':' + String(s2).padStart(2, '0');
         }
 
-        // Update progression highlight
-        if (dur > 0) {
-          var progIndex = Math.min(Math.floor((currentTime / dur) * 8), 7);
-          document.querySelectorAll('.prog-chord').forEach(function(el, i) {
-            el.classList.toggle('active', i === progIndex);
-          });
-        }
+        // Update progression carousel
+        updateProgressionCarousel(currentTime, chordRegions);
 
         playerAnimationId = requestAnimationFrame(loop);
       }
