@@ -107,7 +107,7 @@ Built with the **Rhythmcore Interface** design system (same as [BPMfinder](https
 
 ```
 ChordsFinder/
-├── index.html        # Main application (single HTML, ~115KB)
+├── index.html        # Main application (single HTML, ~112KB)
 ├── DESIGN.md         # Rhythmcore design contract
 ├── sw.js             # Service Worker
 ├── robots.txt        # SEO
@@ -120,11 +120,15 @@ ChordsFinder/
     ├── config.json
     ├── PROJECT.md
     ├── ROADMAP.md
+    ├── REQUIREMENTS.md
     ├── STATE.md
-    ├── Phase-1-1-Manual-Pipeline/
-    │   └── PLAN.md
-    └── Phase-2-Timeline-Player/
-        └── PLAN.md
+    └── phases/
+        ├── 01-hybrid-pipeline/
+        │   ├── 01-01-PLAN.md
+        │   └── 01-01-SUMMARY.md
+        └── 02-timeline-player/
+            ├── 02-01-PLAN.md
+            └── 02-01-SUMMARY.md
 ```
 
 ---
