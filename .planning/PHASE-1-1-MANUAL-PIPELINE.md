@@ -28,34 +28,34 @@ Input audio (Float32Array)
 ## Tasks
 
 ### T1 — FFT + Chroma Core
-- [ ] Inline radix-2 FFT (4096-point, ~40 lines)
-- [ ] Hann window function
-- [ ] Magnitude spectrum from complex FFT
-- [ ] Pitch class mapping (bin → MIDI → chroma bin 0-11)
+- [x] Inline radix-2 FFT (4096-point, ~40 lines)
+- [x] Hann window function
+- [x] Magnitude spectrum from complex FFT
+- [x] Pitch class mapping (bin → MIDI → chroma bin 0-11)
 
 ### T2 — Chord Detection
-- [ ] 24 chord templates (all roots × major/minor)
-- [ ] Correlation scoring (dot product)
-- [ ] Sliding window temporal smoothing (3 frames)
-- [ ] Best match selection with confidence
+- [x] 24 chord templates (all roots × major/minor)
+- [x] Correlation scoring (dot product)
+- [x] Sliding window temporal smoothing (3 frames)
+- [x] Best match selection with confidence
 
 ### T3 — Integration
-- [ ] Rewrite `runEssentiaChordAnalysis()` to use hybrid pipeline
-- [ ] Keep KeyExtractor for key data
-- [ ] Remove TonalExtractor call
-- [ ] Return same result format `{key, scale, strength, chords, mainChord}`
-- [ ] Remove debug panel
+- [x] Rewrite `runEssentiaChordAnalysis()` to use hybrid pipeline
+- [x] Keep KeyExtractor for key data
+- [x] Remove TonalExtractor call
+- [x] Return same result format `{key, scale, strength, chords, mainChord}`
+- [x] Remove debug panel
 
 ### T4 — Testing
-- [ ] Test with c_major_chord.wav → expect C major
-- [ ] Test with a_minor_chord.wav → expect A minor  
-- [ ] Test with progression.wav → expect C, G, Am
-- [ ] Test with user's real audio (via tunnel)
+- [x] Test with c_major_chord.wav → expect C major
+- [x] Test with a_minor_chord.wav → expect A minor  
+- [x] Test with progression.wav → expect C, G, Am
+- [x] Test with user's real audio (via tunnel)
 
 ### T5 — Cleanup
-- [ ] Remove redundant essentia.js CDN scripts if not needed
-- [ ] Remove debug panel DOM elements
-- [ ] Update STATE.md and decision log
+- [x] Remove redundant essentia.js CDN scripts if not needed
+- [x] Remove debug panel DOM elements
+- [x] Update STATE.md and decision log
 
 ## Verification Criteria
 1. C major test WAV → shows "C major" key, "C" chord, confidence >50%

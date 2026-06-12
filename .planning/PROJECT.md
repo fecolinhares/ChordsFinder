@@ -7,7 +7,7 @@ Free online chord and key detector. Upload audio files, paste YouTube links, or 
 - **Hybrid pipeline**: essentia.js WASM for key extraction (works) + manual FFT/chroma/template-matching for chords (circumvents essentia.js WASM vector bug)
 - **Input modes**: File upload, YouTube URL (via Piped API), Tab Capture (getDisplayMedia), Microphone (getUserMedia)
 - **Storage**: 100% client-side, no servers
-- **Runtime**: Single HTML file (~90KB), Service Worker for offline, static hosting
+- **Runtime**: Single HTML file (~115KB), Service Worker for offline, static hosting
 
 ## Design System
 - **Name**: Rhythmcore
@@ -24,13 +24,14 @@ Free online chord and key detector. Upload audio files, paste YouTube links, or 
 - Single chord/key result display with progression pills
 - Dark/light themes, responsive, SEO, a11y
 
-### Milestone 2: Timeline Player & Full-Song Analysis 🎯
+### Milestone 2: Timeline Player & Full-Song Analysis ✅
 - Full-song analysis (remove 180-frame cap, process entire duration)
 - Audio playback with decoded AudioBuffer (play/pause/seek/speed/volume)
 - Waveform canvas visualization with chord region overlays
 - Real-time playhead + current chord sync
 - Main progression highlighted + player controls
 - Impeccable visual refinement
+- Configurable capture duration (5/10/15/30s) for mic and tab
 
 ## Known Issues
 - essentia.js WASM v0.1.3 has a marshalling bug where all `std::vector` outputs return `{}`. KeyExtractor (scalar only) works fine. Circumvented via manual FFT pipeline.
