@@ -525,6 +525,7 @@
     let playbackSpeed = 1;
     let playerAnimationId = null;
     let chordRegions = [];
+    let progressionData = [];
     let audioDuration = 0;
     let currentChordIndex = -1;
 
@@ -572,6 +573,7 @@
       progression.classList.remove('visible');
       stopPlayback(true);
       chordRegions = [];
+      progressionData = [];
       currentAudioBuffer = null;
       dropZone.classList.remove('hidden');
       uploadPanel.classList.remove('visible');
@@ -583,6 +585,7 @@
       stopPlayback(true);
       playerSection.classList.remove('visible');
       chordRegions = [];
+      progressionData = [];
       currentAudioBuffer = null;
       const validTypes = ['audio/mpeg', 'audio/wav', 'audio/wave', 'audio/x-wav',
                           'audio/flac', 'audio/ogg', 'audio/x-flac', 'audio/opus',
@@ -1013,37 +1016,53 @@
     // PROGRESSION CAROUSEL
     // ============================================
 
+    function getUniqueProgression(regions) {
+      if (!regions || regions.length === 0) return [];
+      var result = [];
+      for (var i = 0; i < regions.length; i++) {
+        var r = regions[i];
+        if (result.length === 0 || result[result.length - 1].name !== r.name) {
+          result.push({ name: r.name, startTime: r.startTime, endTime: r.endTime });
+        } else {
+          result[result.length - 1].endTime = r.endTime;
+        }
+      }
+      return result;
+    }
+
     function renderProgressionCarousel() {
       progressionWindow.innerHTML = '';
-      chordRegions.forEach(function(region, i) {
+      progressionData = getUniqueProgression(chordRegions);
+      progressionData.forEach(function(entry, i) {
         var pill = document.createElement('div');
         pill.className = 'prog-pill';
         pill.dataset.index = i;
-        pill.textContent = region.name;
+        pill.textContent = entry.name;
         progressionWindow.appendChild(pill);
       });
-      // Center on first chord
-      centerProgPill(0, chordRegions);
+      centerProgPill(0);
     }
 
-    function findCurrentRegionIndex(time, regions) {
-      if (!regions || regions.length === 0) return 0;
-      for (var i = 0; i < regions.length; i++) {
-        if (time >= regions[i].startTime && time < regions[i].endTime) {
+    function findProgressionIndex(time) {
+      var data = progressionData;
+      if (!data || data.length === 0) return 0;
+      for (var i = 0; i < data.length; i++) {
+        if (time >= data[i].startTime && time < data[i].endTime) {
           return i;
         }
       }
-      // If between regions, find closest
-      for (var j = 0; j < regions.length; j++) {
-        if (time < regions[j].startTime) {
+      // Between progressions — find closest previous
+      for (var j = 0; j < data.length; j++) {
+        if (time < data[j].startTime) {
           return Math.max(0, j - 1);
         }
       }
-      return regions.length - 1;
+      return data.length - 1;
     }
 
-    function centerProgPill(index, regions) {
-      if (!regions || regions.length === 0) return;
+    function centerProgPill(index) {
+      var data = progressionData;
+      if (!data || data.length === 0) return;
       var pills = progressionWindow.querySelectorAll('.prog-pill');
       pills.forEach(function(el, i) {
         el.classList.toggle('current', i === index);
@@ -1058,18 +1077,18 @@
       var pillWidth = target.offsetWidth;
       var targetScroll = pillOffset - (trackWidth / 2) + (pillWidth / 2);
 
-      // Clamp to bounds
       var maxScroll = progressionWindow.scrollWidth - trackWidth;
       targetScroll = Math.max(0, Math.min(targetScroll, maxScroll));
 
       progressionTrack.scrollLeft = targetScroll;
     }
 
-    function updateProgressionCarousel(time, regions) {
-      if (!regions || regions.length < 2) return;
+    function updateProgressionCarousel(time) {
+      var data = progressionData;
+      if (!data || data.length < 2) return;
       if (!progression.classList.contains('visible')) return;
-      var idx = findCurrentRegionIndex(time, regions);
-      centerProgPill(idx, regions);
+      var idx = findProgressionIndex(time);
+      centerProgPill(idx);
     }
 
     // ============================================
@@ -1268,7 +1287,7 @@
           drawTimeline(0);
           updateCurrentChord(chordRegions[0] || null);
           progressionWindow.querySelectorAll('.prog-pill').forEach(function(el) { el.classList.remove('current', 'past'); });
-          centerProgPill(0, chordRegions);
+          centerProgPill(0);
         }
       };
     }
@@ -1331,9 +1350,9 @@
 
       // Update progression carousel using same index
       if (regionIdx >= 0) {
-        centerProgPill(regionIdx, chordRegions);
+        centerProgPill(regionIdx);
       } else {
-        updateProgressionCarousel(clamped, chordRegions);
+        updateProgressionCarousel(clamped);
       }
 
       if (wasPlaying) { startPlayback(); }
@@ -1401,10 +1420,10 @@
 
         // Update progression carousel using same region index
         if (regionIdx >= 0) {
-          centerProgPill(regionIdx, chordRegions);
+          centerProgPill(regionIdx);
         } else {
           // Between chords — fallback to closest previous
-          updateProgressionCarousel(currentTime, chordRegions);
+          updateProgressionCarousel(currentTime);
         }
 
         playerAnimationId = requestAnimationFrame(loop);
@@ -1829,6 +1848,7 @@
       stopPlayback(true);
       playerSection.classList.remove('visible');
       chordRegions = [];
+      progressionData = [];
       currentAudioBuffer = null;
       youtubeUrlInput.disabled = false;
       youtubeAnalyzeBtn.disabled = false;
@@ -1845,6 +1865,7 @@
       stopPlayback(true);
       playerSection.classList.remove('visible');
       chordRegions = [];
+      progressionData = [];
       currentAudioBuffer = null;
       captureReady.classList.remove('hidden');
       captureProgress.classList.add('hidden');
@@ -1856,6 +1877,7 @@
       stopPlayback(true);
       playerSection.classList.remove('visible');
       chordRegions = [];
+      progressionData = [];
       currentAudioBuffer = null;
       if (currentMode === 'file') resetFileMode();
       else { hideError(); loading.classList.remove('visible'); result.classList.remove('visible'); keyDisplay.classList.remove('visible'); keyDisplay.style.display = 'none'; progression.classList.remove('visible'); }
