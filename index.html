@@ -750,6 +750,33 @@
       font-size: var(--text-sm);
       color: var(--text-secondary);
     }
+    .capture-duration {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      margin-bottom: var(--space-4);
+      font-size: var(--text-sm);
+      color: var(--text-secondary);
+    }
+    .capture-duration-select {
+      font-family: var(--font-mono);
+      font-size: var(--text-sm);
+      padding: var(--space-1) var(--space-3);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-control);
+      background: var(--card-bg);
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+    }
+    .capture-duration-select:hover {
+      border-color: var(--border-default);
+    }
+    .capture-duration-select:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
     .capture-options {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -1576,7 +1603,7 @@
           <li>Click <strong>"Capture from Tab"</strong> below</li>
           <li>Select the YouTube tab when prompted</li>
         </ol>
-        <p class="guide-note">ChordsFinder will capture 10 seconds of audio — enough for accurate chord detection.</p>
+        <p class="guide-note">ChordsFinder will capture 5–30 seconds of audio — enough for accurate chord detection.</p>
         <button id="guideCaptureBtn" class="btn-accent guide-btn">
           <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
           Capture from Tab
@@ -1588,6 +1615,15 @@
     <div id="panelCapture" class="input-panel card card-padded" role="tabpanel" hidden webmcp-tool webmcp-tool-name="captureAudio" webmcp-tool-description="Capture live audio for chord detection. Use your microphone or record audio from another browser tab.">
       <div class="capture-ready" id="captureReady">
         <p class="capture-desc">Choose an audio source to capture:</p>
+        <div class="capture-duration">
+          <label for="captureDuration">Duration:</label>
+          <select id="captureDuration" class="capture-duration-select" aria-label="Recording duration">
+            <option value="5">5 seconds</option>
+            <option value="10" selected>10 seconds</option>
+            <option value="15">15 seconds</option>
+            <option value="30">30 seconds</option>
+          </select>
+        </div>
         <div class="capture-options">
           <button id="micCaptureBtn" class="capture-option">
             <span class="capture-option-icon">
@@ -2969,7 +3005,10 @@
     }
 
     // --- Tab Capture (getDisplayMedia) ---
-    const CAPTURE_DURATION = 10000;
+    function getCaptureDuration() {
+      var sel = document.getElementById('captureDuration');
+      return (sel ? parseInt(sel.value) : 10) * 1000;
+    }
 
     function stereoToMono(buffer) {
       const left = buffer.getChannelData(0);
@@ -2996,6 +3035,9 @@
       const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
         ? 'audio/webm;codecs=opus' : 'audio/webm';
 
+      const captureDurationMs = getCaptureDuration();
+      const totalSecs = Math.round(captureDurationMs / 1000);
+
       const recorder = new MediaRecorder(audioStream, { mimeType });
       const chunks = [];
       recorder.ondataavailable = (e) => { if (e.data.size > 0) chunks.push(e.data); };
@@ -3008,11 +3050,11 @@
         const startTime = Date.now();
         const progressInterval = setInterval(() => {
           const elapsed = Date.now() - startTime;
-          const pct = Math.min((elapsed / CAPTURE_DURATION) * 100, 100);
+          const pct = Math.min((elapsed / captureDurationMs) * 100, 100);
           const secs = Math.floor(elapsed / 1000);
           captureMeterFill.style.width = pct + '%';
-          captureCountdown.textContent = `Capturing… ${secs}/${CAPTURE_DURATION/1000}s`;
-          if (elapsed >= CAPTURE_DURATION) {
+          captureCountdown.textContent = `Capturing… ${secs}/${totalSecs}s`;
+          if (elapsed >= captureDurationMs) {
             clearInterval(progressInterval);
             recorder.stop();
           }
