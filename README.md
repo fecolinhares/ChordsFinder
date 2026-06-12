@@ -107,7 +107,7 @@ Built with the **Rhythmcore Interface** design system (same as [BPMfinder](https
 
 ```
 ChordsFinder/
-├── index.html        # Main application (single HTML, ~112KB)
+├── index.html        # Main application (single HTML, ~116KB)
 ├── DESIGN.md         # Rhythmcore design contract
 ├── sw.js             # Service Worker
 ├── robots.txt        # SEO
@@ -139,8 +139,8 @@ ChordsFinder is **100% private**:
 - ❌ No backend servers
 - ❌ No audio uploads
 - ❌ No API keys
-- ❌ No analytics
 - ❌ No cookies
+- ❌ No analytics tracking (GA4 placeholder present for future opt-in)
 - ✅ All processing in-browser via WASM + Web Audio API
 - ✅ Audio stays on your device
 

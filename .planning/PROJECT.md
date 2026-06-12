@@ -7,7 +7,7 @@ Free online chord and key detector. Upload audio files, paste YouTube links, or 
 - **Hybrid pipeline**: essentia.js WASM for key extraction (works) + manual FFT/chroma/template-matching for chords (circumvents essentia.js WASM vector bug)
 - **Input modes**: File upload, YouTube URL (via Piped API), Tab Capture (getDisplayMedia), Microphone (getUserMedia)
 - **Storage**: 100% client-side, no servers
-- **Runtime**: Single HTML file (~115KB), Service Worker for offline, static hosting
+- **Runtime**: Single HTML file (~116KB), Service Worker for offline, static hosting
 
 ## Design System
 - **Name**: Rhythmcore

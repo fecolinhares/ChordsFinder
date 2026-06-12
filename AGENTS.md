@@ -17,7 +17,7 @@ Free online chord and key detector. Single HTML file, fully client-side, no serv
 - **Fonts**: Inter + JetBrains Mono
 
 ## Key Files
-- `index.html` — full application (~112KB, all in one file)
+- `index.html` — full application (~116KB, all in one file)
 - `DESIGN.md` — design tokens
 - `.planning/` — GSD workflow (standardized: phases/ with numeric prefix, REQUIREMENTS.md, SUMMARY.md per phase)
 
