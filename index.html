@@ -3106,6 +3106,10 @@
     }
 
     function resetYoutubeMode() {
+      stopPlayback(true);
+      playerSection.classList.remove('visible');
+      chordRegions = [];
+      currentAudioBuffer = null;
       youtubeUrlInput.disabled = false;
       youtubeAnalyzeBtn.disabled = false;
       youtubeAnalyzeBtn.querySelector('span').textContent = 'Analyze';
@@ -3118,6 +3122,10 @@
     }
 
     function resetCaptureMode() {
+      stopPlayback(true);
+      playerSection.classList.remove('visible');
+      chordRegions = [];
+      currentAudioBuffer = null;
       captureReady.classList.remove('hidden');
       captureProgress.classList.add('hidden');
       captureError.classList.add('hidden');
