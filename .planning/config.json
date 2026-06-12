@@ -6,7 +6,7 @@
   "created_at": "2026-06-10",
   "updated_at": "2026-06-10",
   "milestones": {
-    "1": { "name": "Core Chord Detection Pipeline", "phases": ["Phase-1-Hybrid-Pipeline"], "status": "done" },
-    "2": { "name": "Timeline Player & Full-Song Analysis", "phases": ["Phase-2-Timeline-Player"], "status": "done" }
+    "1": { "name": "Core Chord Detection Pipeline", "phases": ["01-hybrid-pipeline"], "status": "done" },
+    "2": { "name": "Timeline Player & Full-Song Analysis", "phases": ["02-timeline-player"], "status": "done" }
   }
 }
