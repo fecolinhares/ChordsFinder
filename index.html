@@ -1317,18 +1317,24 @@
       playbackOffset = clamped;
       drawTimeline(clamped);
 
-      // Find current chord region
+      // Find current chord region — single pass for both displays
       var region = null;
+      var regionIdx = -1;
       for (var ri = 0; ri < chordRegions.length; ri++) {
         if (clamped >= chordRegions[ri].startTime && clamped < chordRegions[ri].endTime) {
           region = chordRegions[ri];
+          regionIdx = ri;
           break;
         }
       }
       updateCurrentChord(region || null);
 
-      // Update progression carousel
-      updateProgressionCarousel(clamped, chordRegions);
+      // Update progression carousel using same index
+      if (regionIdx >= 0) {
+        centerProgPill(regionIdx, chordRegions);
+      } else {
+        updateProgressionCarousel(clamped, chordRegions);
+      }
 
       if (wasPlaying) { startPlayback(); }
 
@@ -1374,11 +1380,13 @@
           updateTimeDisplay(Math.min(currentTime, dur), dur);
         }
 
-        // Find current chord
+        // Find current chord ONCE — use same index for both displays
         var region = null;
+        var regionIdx = -1;
         for (var ri = 0; ri < chordRegions.length; ri++) {
           if (currentTime >= chordRegions[ri].startTime && currentTime < chordRegions[ri].endTime) {
             region = chordRegions[ri];
+            regionIdx = ri;
             break;
           }
         }
@@ -1391,8 +1399,13 @@
           ccdTime.textContent = m1 + ':' + String(s1).padStart(2, '0') + ' - ' + m2 + ':' + String(s2).padStart(2, '0');
         }
 
-        // Update progression carousel
-        updateProgressionCarousel(currentTime, chordRegions);
+        // Update progression carousel using same region index
+        if (regionIdx >= 0) {
+          centerProgPill(regionIdx, chordRegions);
+        } else {
+          // Between chords — fallback to closest previous
+          updateProgressionCarousel(currentTime, chordRegions);
+        }
 
         playerAnimationId = requestAnimationFrame(loop);
       }
