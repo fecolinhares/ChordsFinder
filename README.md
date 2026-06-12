@@ -155,19 +155,6 @@ ChordsFinder is **100% private**:
 - 🔲 Export chord progression as text/MIDI
 - 🔲 History of recent analyses (localStorage)
 
----
-
 ## 📄 License
 
 MIT — use freely, credit appreciated.
-
-## 🙏 Credits
-
-- [essentia.js](https://github.com/MTG/essentia.js) — WebAssembly port of Essentia by MTG/UPF
-- [Piped API](https://github.com/TeamPiped/Piped) — Privacy-friendly YouTube proxy
-- [Rhythmcore Interface](https://design.neuform.com/) — Design system by Meng To
-- [Impeccable](https://impeccable.style/) — Design audit by Paul Bakaus
-
----
-
-*Built with ❤️ by [Feco Linhares](https://github.com/fecolinhares)*
