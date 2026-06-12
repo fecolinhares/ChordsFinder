@@ -992,6 +992,19 @@
       // Update current chord display
       updateCurrentChord(mainChord || (chords && chords[0]) || null);
 
+      // Sync carousel highlight with NowPlaying initial chord
+      var initialName = (mainChord || (chords && chords[0]) || {}).name;
+      if (initialName && progressionData.length > 0) {
+        var initialIdx = -1;
+        for (var pi = 0; pi < progressionData.length; pi++) {
+          if (progressionData[pi].name === initialName) {
+            initialIdx = pi;
+            break;
+          }
+        }
+        centerProgPill(initialIdx >= 0 ? initialIdx : 0);
+      }
+
       // Source indicator
       const modeLabels = { file: 'from file', youtube: 'from YouTube', capture: 'from tab capture', mic: 'from microphone' };
       ccdDetail.textContent = modeLabels[currentMode] || '';
@@ -1336,24 +1349,18 @@
       playbackOffset = clamped;
       drawTimeline(clamped);
 
-      // Find current chord region — single pass for both displays
+      // Find current chord region for NowPlaying
       var region = null;
-      var regionIdx = -1;
       for (var ri = 0; ri < chordRegions.length; ri++) {
         if (clamped >= chordRegions[ri].startTime && clamped < chordRegions[ri].endTime) {
           region = chordRegions[ri];
-          regionIdx = ri;
           break;
         }
       }
       updateCurrentChord(region || null);
 
-      // Update progression carousel using same index
-      if (regionIdx >= 0) {
-        centerProgPill(regionIdx);
-      } else {
-        updateProgressionCarousel(clamped);
-      }
+      // Update progression carousel via time-based lookup
+      updateProgressionCarousel(clamped);
 
       if (wasPlaying) { startPlayback(); }
 
@@ -1399,13 +1406,11 @@
           updateTimeDisplay(Math.min(currentTime, dur), dur);
         }
 
-        // Find current chord ONCE — use same index for both displays
+        // Find current chord for NowPlaying display
         var region = null;
-        var regionIdx = -1;
         for (var ri = 0; ri < chordRegions.length; ri++) {
           if (currentTime >= chordRegions[ri].startTime && currentTime < chordRegions[ri].endTime) {
             region = chordRegions[ri];
-            regionIdx = ri;
             break;
           }
         }
@@ -1418,13 +1423,8 @@
           ccdTime.textContent = m1 + ':' + String(s1).padStart(2, '0') + ' - ' + m2 + ':' + String(s2).padStart(2, '0');
         }
 
-        // Update progression carousel using same region index
-        if (regionIdx >= 0) {
-          centerProgPill(regionIdx);
-        } else {
-          // Between chords — fallback to closest previous
-          updateProgressionCarousel(currentTime);
-        }
+        // Update progression carousel via time-based lookup into progressionData
+        updateProgressionCarousel(currentTime);
 
         playerAnimationId = requestAnimationFrame(loop);
       }
