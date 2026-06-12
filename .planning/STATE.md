@@ -1,43 +1,25 @@
-# ChordsFinder — Project State
+# Phase 2 — Timeline Player & Full-Song Analysis
 
-## v1 — Core Detection + Visual Foundation (Phase 1)
+**Status**: IN PROGRESS
+**Started**: 2026-06-10
+**Current Phase**: Implementation
 
-**Status:** 🟢 In Progress
-**Started:** 2026-06-10
+## Completed
+- Milestone 2 structure created (config.json, ROADMAP.md, PROJECT.md)
+- Phase 2 plan written (PLAN.md)
 
-### Key Files
-- `index.html` — Main application (single HTML, all-in-one)
-- `DESIGN.md` — Rhythmcore Interface design contract
-- `sw.js` — Service Worker for offline support
-- `robots.txt` — SEO
-- `sitemap.xml` — SEO
-- `llms.txt` — AI agent discovery
+## In Progress
+- Task 1: Full-song analysis engine (frame cap removal + chord regions with timing)
+- Task 2: HTML layout restructure
+- Task 3: Canvas waveform + chord timeline
+- Task 4: Audio playback system
+- Task 5: Player controls (speed, volume, seek)
+- Task 6: Current chord sync + real-time updates
 
-### Current Focus
-- Phase 1: Core detection + full Rhythmcore UI + all 4 input modes
+## Blockers
+- None
 
-### Next
-- Phase 2: Polish + SEO + deploy
-
-## Known Issues
-- Essentia.js 0.1.3 WASM has a systematic bug: ALL std::vector outputs (float, string, 2D) return as empty `{}` via emscripten val::set(). Only scalar/string outputs work.
-
-## Decisions Log
-- ~~TonalExtractor for chord+key detection~~ → **BROKEN** in essentia.js 0.1.3 WASM (std::vector returns `{}`)
-- **Hybrid pipeline** (Phase 1.1): essentia KeyExtractor (key/scale) + manual FFT/chroma + template matching (24 chord types)
-- Same 4 input modes as BPMFinder
-- Pulse animation accent on detected chord
-
----
-
-## Phases Completed
-| Phase | Description | Date |
-|-------|-------------|------|
-| 1 | Initial implementation | 2026-06-10 |
-| 1.1 | Hybrid pipeline (replace broken TonalExtractor) | 2026-06-11 |
-
-## Quick Tasks Completed
-| Date | Task | Description |
-||------|------|-------------|
-|| 2026-06-11 | Fix EssentiaJS double-vector | Separate vectors for KeyExtractor/TonalExtractor, safeDelete() guard, graceful fallback |
-|| 2026-06-11 | [object Object] fixes | Array/object type guards, String() coercion, .name extraction |
+## Decision Log
+- Analysis: full sync processing (no chunking for now — desktop is fast enough)
+- Canvas: single canvas for waveform + chord bars + playhead (fewer DOM elements)
+- Player state: use AudioContext.currentTime for timing (not setInterval)

@@ -1216,6 +1216,236 @@
       clip: rect(0, 0, 0, 0);
       border: 0;
     }
+
+    /* --- Player Section --- */
+    .player-section {
+      display: none;
+      flex-direction: column;
+      gap: var(--space-4);
+      padding: var(--space-5);
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-sm);
+      transition: box-shadow var(--transition-base), opacity var(--transition-base), transform var(--transition-base);
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    .player-section.visible {
+      display: flex;
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .player-section:hover {
+      box-shadow: var(--shadow-hover);
+    }
+
+    /* Current Chord Display */
+    .current-chord-display {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: 0 var(--space-1);
+    }
+    .ccd-label {
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      color: var(--text-tertiary);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .ccd-chord {
+      font-family: var(--font-sans);
+      font-size: var(--text-xl);
+      font-weight: 600;
+      color: var(--accent);
+      min-width: 40px;
+      transition: color var(--transition-base), transform var(--transition-base);
+    }
+    .ccd-chord.transition {
+      animation: chordPop 300ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes chordPop {
+      0% { transform: scale(1); }
+      40% { transform: scale(1.15); }
+      100% { transform: scale(1); }
+    }
+    .ccd-detail {
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      color: var(--text-secondary);
+    }
+    .ccd-time {
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      color: var(--text-tertiary);
+      margin-left: auto;
+    }
+
+    /* Timeline Container */
+    .timeline-container {
+      position: relative;
+      width: 100%;
+      height: 100px;
+      border-radius: var(--radius-control);
+      background: var(--bg-surface);
+      overflow: hidden;
+      cursor: pointer;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .timeline-container canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Player Controls */
+    .player-controls {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: 0 var(--space-1);
+    }
+    .btn-play {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 44px;
+      height: 44px;
+      border: none;
+      border-radius: 50%;
+      background: var(--primary);
+      color: #fff;
+      cursor: pointer;
+      transition: background var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
+      flex-shrink: 0;
+    }
+    .btn-play:hover {
+      background: var(--primary-hover);
+      transform: scale(1.05);
+      box-shadow: 0 0 16px var(--primary-glow);
+    }
+    .btn-play:active {
+      transform: scale(0.95);
+    }
+    .btn-play:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+    .btn-play svg { display: block; width: 20px; height: 20px; }
+
+    .time-display {
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      color: var(--text-secondary);
+      min-width: 80px;
+      white-space: nowrap;
+    }
+
+    .speed-control {
+      display: flex;
+      gap: 2px;
+      background: var(--bg-surface);
+      border-radius: var(--radius-control);
+      padding: 2px;
+      flex-shrink: 0;
+    }
+    .speed-btn {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 600;
+      padding: 3px 7px;
+      border: none;
+      border-radius: 6px;
+      background: transparent;
+      color: var(--text-tertiary);
+      cursor: pointer;
+      transition: background var(--transition-fast), color var(--transition-fast);
+    }
+    .speed-btn:hover {
+      color: var(--text-primary);
+      background: var(--bg-hover);
+    }
+    .speed-btn.active {
+      background: var(--primary-dim);
+      color: var(--primary);
+    }
+    .speed-btn:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .volume-wrap {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      flex-shrink: 0;
+      margin-left: auto;
+    }
+    .volume-icon {
+      color: var(--text-tertiary);
+      flex-shrink: 0;
+    }
+    .volume-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 64px;
+      height: 4px;
+      border-radius: 2px;
+      background: var(--bg-hover);
+      outline: none;
+      cursor: pointer;
+    }
+    .volume-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--primary);
+      border: none;
+      cursor: pointer;
+      transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+    }
+    .volume-slider::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+      box-shadow: 0 0 8px var(--primary-glow);
+    }
+    .volume-slider::-moz-range-thumb {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--primary);
+      border: none;
+      cursor: pointer;
+    }
+
+    /* Progression inside player */
+    .player-section .progression {
+      margin-top: 0;
+    }
+
+    /* Mobile adjustments */
+    @media (max-width: 480px) {
+      .timeline-container { height: 72px; }
+      .ccd-chord { font-size: var(--text-lg); }
+      .player-controls { flex-wrap: wrap; gap: var(--space-2); }
+      .time-display { min-width: 70px; font-size: 10px; }
+      .volume-wrap { margin-left: 0; }
+      .volume-slider { width: 48px; }
+    }
+
+    @media (max-width: 380px) {
+      .timeline-container { height: 56px; }
+      .speed-btn { font-size: 9px; padding: 2px 5px; }
+      .volume-slider { width: 36px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .player-section { transition: none; }
+      .ccd-chord.transition { animation: none; }
+    }
   </style>
 </head>
 <body>
@@ -1410,27 +1640,68 @@
       <div class="key-strength" id="keyStrength"></div>
     </div>
 
-    <!-- Result Card -->
-    <div class="result" id="result">
+    <!-- Player Section -->
+    <div class="player-section" id="playerSection">
+      <!-- Current chord display -->
+      <div class="current-chord-display" id="currentChordDisplay">
+        <span class="ccd-label">Now Playing</span>
+        <span class="ccd-chord" id="ccdChord">—</span>
+        <span class="ccd-detail" id="ccdDetail"></span>
+        <span class="ccd-time" id="ccdTime"></span>
+      </div>
+
+      <!-- Timeline -->
+      <div class="timeline-container" id="timelineContainer">
+        <canvas id="timelineCanvas"></canvas>
+      </div>
+
+      <!-- Player controls -->
+      <div class="player-controls">
+        <button id="btnPlay" class="btn-play" aria-label="Play">
+          <svg class="play-icon" viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+            <polygon points="5,3 19,12 5,21"/>
+          </svg>
+          <svg class="pause-icon" viewBox="0 0 24 24" width="18" height="18" fill="currentColor" style="display:none">
+            <rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>
+          </svg>
+        </button>
+        <span class="time-display" id="timeDisplay">0:00 / 0:00</span>
+        <div class="speed-control" role="group" aria-label="Playback speed">
+          <button class="speed-btn" data-speed="0.5">0.5x</button>
+          <button class="speed-btn active" data-speed="1">1x</button>
+          <button class="speed-btn" data-speed="2">2x</button>
+        </div>
+        <div class="volume-wrap">
+          <svg class="volume-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+          </svg>
+          <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.05" value="0.8" aria-label="Volume">
+        </div>
+      </div>
+
+      <!-- Progression (inside player) -->
+      <div class="progression" id="progression">
+        <div class="progression-label">Progression</div>
+        <div class="progression-chords" id="progressionChords"></div>
+      </div>
+    </div>
+
+    <!-- Hidden result fallback -->
+    <div class="result hidden" id="result">
       <div class="chord-label">Current Chord</div>
       <div class="chord-main" id="chordValue">—</div>
       <div class="chord-quality" id="chordQuality"></div>
       <div class="chord-confidence" id="chordConfidence"></div>
       <span class="result-source" id="resultSource"></span>
-
-      <!-- Chord progression -->
-      <div class="progression" id="progression">
-        <div class="progression-label">Progression</div>
-        <div class="progression-chords" id="progressionChords"></div>
-      </div>
-
       <div class="actions">
         <button id="analyzeAgain">Analyze another track</button>
       </div>
     </div>
 
     <!-- Error -->
-    <div class="error" id="error"></div>
+    <div class="error" id="error" role="alert"></div>
     </main>
 
     <!-- Footer -->
@@ -1589,6 +1860,33 @@
     let currentFile = null;
     let audioContext = null;
 
+    // --- Player State ---
+    let currentAudioBuffer = null;
+    let currentSource = null;
+    let currentGain = null;
+    let isPlaying = false;
+    let playbackStartTime = 0;
+    let playbackOffset = 0;
+    let playbackSpeed = 1;
+    let playerAnimationId = null;
+    let chordRegions = [];
+    let audioDuration = 0;
+    let currentChordIndex = -1;
+
+    // Player DOM refs
+    const playerSection = document.getElementById('playerSection');
+    const timelineCanvas = document.getElementById('timelineCanvas');
+    const timelineContainer = document.getElementById('timelineContainer');
+    const btnPlay = document.getElementById('btnPlay');
+    const playIcon = document.querySelector('.play-icon');
+    const pauseIcon = document.querySelector('.pause-icon');
+    const timeDisplay = document.getElementById('timeDisplay');
+    const speedBtns = document.querySelectorAll('.speed-btn');
+    const volumeSlider = document.getElementById('volumeSlider');
+    const ccdChord = document.getElementById('ccdChord');
+    const ccdDetail = document.getElementById('ccdDetail');
+    const ccdTime = document.getElementById('ccdTime');
+
     // --- Piped API Configuration ---
     const PIPED_INSTANCES = [
       'https://api.piped.private.coffee',
@@ -1612,10 +1910,14 @@
     function resetUI() {
       hideError();
       loading.classList.remove('visible');
+      playerSection.classList.remove('visible');
       result.classList.remove('visible');
       keyDisplay.classList.remove('visible');
       keyDisplay.style.display = 'none';
       progression.classList.remove('visible');
+      stopPlayback(true);
+      chordRegions = [];
+      currentAudioBuffer = null;
       dropZone.classList.remove('hidden');
       uploadPanel.classList.remove('visible');
     }
@@ -1623,6 +1925,10 @@
     // --- File handling ---
     function handleFile(file) {
       hideError();
+      stopPlayback(true);
+      playerSection.classList.remove('visible');
+      chordRegions = [];
+      currentAudioBuffer = null;
       const validTypes = ['audio/mpeg', 'audio/wav', 'audio/wave', 'audio/x-wav',
                           'audio/flac', 'audio/ogg', 'audio/x-flac', 'audio/opus',
                           'audio/webm', 'audio/aac', 'audio/mp4'];
@@ -1709,6 +2015,7 @@
       if (!audioContext) audioContext = new AudioContext();
       const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
       const channelData = audioBuffer.getChannelData(0);
+      currentAudioBuffer = audioBuffer;
       return runEssentiaChordAnalysis(channelData, audioBuffer.sampleRate);
     }
 
@@ -1818,9 +2125,9 @@
     }
 
     // --- Detect chords across all chroma frames with temporal smoothing ---
-    function detectChordsFromChroma(chromaFrames) {
+    function detectChordsFromChroma(chromaFrames, sampleRate, hopSize) {
       if (!chromaFrames || chromaFrames.length === 0) {
-        return { chordNames: [], confidences: [] };
+        return { chordNames: [], confidences: [], chordRegions: [] };
       }
 
       const frameResults = chromaFrames.map(cf => scoreChords(cf));
@@ -1847,6 +2154,23 @@
         }
       }
 
+      // Build chord regions with timing
+      const regions = [];
+      let currentRegion = null;
+      for (let f = 0; f < smoothed.length; f++) {
+        const r = smoothed[f];
+        const name = NOTE_NAMES[r.root] + (r.quality === 'minor' ? 'm' : '');
+        const time = (f * hopSize) / sampleRate;
+        if (!currentRegion || currentRegion.name !== name || (time - currentRegion.endTime) > 0.5) {
+          if (currentRegion && currentRegion.confidence >= 0.05) regions.push(currentRegion);
+          currentRegion = { name, root: NOTE_NAMES[r.root], quality: r.quality, startTime: time, endTime: time, confidence: r.score };
+        } else {
+          currentRegion.endTime = time;
+          currentRegion.confidence = Math.max(currentRegion.confidence, r.score);
+        }
+      }
+      if (currentRegion && currentRegion.confidence >= 0.05) regions.push(currentRegion);
+
       // Merge consecutive identical chords and pick top ~8 for progression
       const merged = [];
       for (const r of smoothed) {
@@ -1860,7 +2184,7 @@
 
       // Limit progression length
       const prog = merged.slice(0, 8);
-      // Sanitize: garantir que confidences sejam números válidos entre 0 e 1
+      // Sanitize
       const sanitized = prog.map(p => ({
         name: p.name,
         score: (typeof p.score === 'number' && isFinite(p.score))
@@ -1869,7 +2193,8 @@
       }));
       return {
         chordNames: sanitized.map(p => p.name),
-        confidences: sanitized.map(p => p.score)
+        confidences: sanitized.map(p => p.score),
+        chordRegions: regions
       };
     }
 
@@ -1920,10 +2245,7 @@
       // Usar 8192 para melhor resolução de frequência (~5.4Hz/bin a 44.1kHz)
       const FRAME_SIZE = 8192;
       const HOP_SIZE = 4096;
-      const maxFrames = Math.min(
-        Math.floor((channelData.length - FRAME_SIZE) / HOP_SIZE) + 1,
-        180 // ~16s com hop 4096
-      );
+      const maxFrames = Math.floor((channelData.length - FRAME_SIZE) / HOP_SIZE);
 
       const chromaFrames = [];
       for (let i = 0; i < maxFrames; i++) {
@@ -1949,16 +2271,17 @@
       }
 
       // Detect chords
-      const { chordNames, confidences } = detectChordsFromChroma(chromaFrames);
+      const { chordNames, confidences, chordRegions } = detectChordsFromChroma(chromaFrames, SR, HOP_SIZE);
 
       // Se confiança máxima for muito baixa (< 5%), cai no fallback key-only
-      // Evita mostrar acorde inventado pra áudio sem conteúdo harmônico claro
       const maxConf = confidences.length > 0 ? Math.max(...confidences) : 0;
 
-      // Build result (same format as before)
+      // Build result
       if (chordNames.length === 0 || maxConf < 0.05) {
         return {
           key, scale, strength,
+          duration: channelData.length / SR,
+          chordRegions: [],
           chords: [{ name: key + (scale === 'minor' ? 'm' : ''), root: key, quality: scale, suffix: scale === 'minor' ? 'm' : '', strength }],
           mainChord: { name: key + (scale === 'minor' ? 'm' : ''), root: key, quality: scale, suffix: scale === 'minor' ? 'm' : '', strength }
         };
@@ -1977,10 +2300,10 @@
 
       const mainChord = chords[0] || { name: '—', root: '—', quality: '', suffix: '', strength: 0 };
 
-      return { key, scale, strength, chords, mainChord };
+      return { key, scale, strength, duration: channelData.length / SR, chordRegions, chords, mainChord };
     }
 
-    function displayResult({ key, scale, strength, chords, mainChord }) {
+    function displayResult({ key, scale, strength, chords, mainChord, duration, chordRegions: regions }) {
       loading.classList.remove('visible');
       keyDisplay.style.display = 'flex';
       keyDisplay.classList.add('visible');
@@ -1991,38 +2314,444 @@
       const strengthPct = Math.min(Math.round(strength * 100), 100);
       keyStrength.textContent = `confidence ${strengthPct}%`;
 
-      // Main chord display with animated reveal
-      result.classList.add('visible');
-      chordValue.textContent = String(mainChord.root || '—');
-      chordQuality.textContent = String(mainChord.quality || '');
-      chordConfidence.className = 'chord-confidence';
-      const confPct = Math.min(Math.round(mainChord.strength * 100), 100);
-      if (confPct >= 70) {
-        chordConfidence.classList.add('confidence-good');
-      } else if (confPct >= 50) {
-        chordConfidence.classList.add('confidence-medium');
-      } else {
-        chordConfidence.classList.add('confidence-bad');
-      }
-      chordConfidence.textContent = `confidence ${confPct}%`;
+      // Store for player
+      chordRegions = regions || [];
+      audioDuration = duration || (currentAudioBuffer ? currentAudioBuffer.duration : 0);
 
-      // Source indicator
-      const modeLabels = { file: 'from file', youtube: 'from YouTube', capture: 'from tab capture', mic: 'from microphone' };
-      resultSource.textContent = modeLabels[currentMode] || '';
+      // Show player section
+      playerSection.classList.add('visible');
+      result.classList.add('hidden');
 
-      // Chord progression
+      // Init timeline canvas
+      initTimeline();
+
+      // Show progression pills
       if (chords && chords.length > 1) {
         progression.classList.add('visible');
         progressionChords.innerHTML = '';
         chords.forEach((chord, i) => {
           const el = document.createElement('div');
-          el.className = 'prog-chord' + (i === 0 ? ' active' : '');
-          el.innerHTML = `<span class="prog-chord-name">${chord.name}</span>
+          el.className = 'prog-chord';
+          if (i === 0) el.classList.add('active');
+          el.dataset.index = i;
+          const name = chord.root + (chord.suffix || '');
+          el.innerHTML = `<span class="prog-chord-name">${name}</span>
                           <span class="prog-chord-time">${i + 1}</span>`;
           progressionChords.appendChild(el);
         });
       }
+
+      // Update current chord display
+      updateCurrentChord(mainChord || (chords && chords[0]) || null);
+
+      // Source indicator
+      const modeLabels = { file: 'from file', youtube: 'from YouTube', capture: 'from tab capture', mic: 'from microphone' };
+      ccdDetail.textContent = modeLabels[currentMode] || '';
     }
+
+    function updateCurrentChord(chord) {
+      if (!chord) {
+        ccdChord.textContent = '—';
+        ccdTime.textContent = '';
+        return;
+      }
+      const name = chord.root + (chord.suffix || (chord.quality === 'minor' ? 'm' : (chord.quality === 'major' ? '' : ' ' + chord.quality)));
+      if (ccdChord.textContent !== name && name !== '—') {
+        ccdChord.textContent = name;
+        ccdChord.classList.remove('transition');
+        void ccdChord.offsetWidth;
+        ccdChord.classList.add('transition');
+      }
+    }
+
+    // ============================================
+    // PLAYER & TIMELINE
+    // ============================================
+
+    // --- Color map for chords (HSL per root note) ---
+    function chordToColor(chordName) {
+      if (!chordName) return 'var(--primary)';
+      const rootMatch = chordName.match(/^[A-G][#b]?/);
+      if (!rootMatch) return 'var(--primary)';
+      const root = rootMatch[0];
+      const idx = NOTE_NAMES.indexOf(root);
+      if (idx === -1) return 'var(--primary)';
+      const hue = (idx * 30 + 15) % 360;
+      return 'hsl(' + hue + ', 55%, 50%)';
+    }
+
+    // --- Draw waveform + chord regions on canvas ---
+    function drawTimeline(currentTime) {
+      const canvas = timelineCanvas;
+      const container = timelineContainer;
+      const dpr = window.devicePixelRatio || 1;
+      const rect = container.getBoundingClientRect();
+      const w = rect.width;
+      const h = rect.height;
+      if (w === 0 || h === 0) return;
+      canvas.width = w * dpr;
+      canvas.height = h * dpr;
+      const ctx = canvas.getContext('2d');
+      ctx.scale(dpr, dpr);
+
+      const data = currentAudioBuffer ? currentAudioBuffer.getChannelData(0) : null;
+      const dur = audioDuration || (data ? data.length / 44100 : 1);
+      if (dur <= 0) return;
+
+      ctx.clearRect(0, 0, w, h);
+
+      // --- Draw chord region bars ---
+      const barH = 20;
+      const barY = 2;
+      if (chordRegions && chordRegions.length > 0) {
+        for (const r of chordRegions) {
+          const x1 = (r.startTime / dur) * w;
+          const x2 = Math.max(x1 + 2, (r.endTime / dur) * w);
+          const color = chordToColor(r.name);
+          ctx.fillStyle = color + '33';
+          ctx.fillRect(x1, barY, x2 - x1, barH);
+          // Label
+          ctx.fillStyle = color;
+          ctx.font = '9px JetBrains Mono, monospace';
+          ctx.textBaseline = 'middle';
+          ctx.textAlign = 'center';
+          const label = r.name;
+          const textW = ctx.measureText(label).width;
+          if ((x2 - x1) > textW + 8) {
+            ctx.fillText(label, (x1 + x2) / 2, barY + barH / 2);
+          }
+        }
+      }
+
+      // --- Draw waveform ---
+      if (data) {
+        const steps = Math.min(Math.floor(w), data.length);
+        const samplesPerStep = Math.floor(data.length / steps);
+        const waveY = barY + barH + 4;
+        const waveH = h - waveY - 14;
+
+        // Fill
+        ctx.beginPath();
+        ctx.moveTo(0, waveY + waveH / 2);
+        for (let x = 0; x < steps; x++) {
+          const start = Math.floor(x * samplesPerStep);
+          const end = Math.min(start + samplesPerStep, data.length);
+          let max = 0;
+          for (let s = start; s < end; s++) {
+            const val = Math.abs(data[s]);
+            if (val > max) max = val;
+          }
+          const yPos = waveY + waveH / 2 - max * (waveH / 2) * 0.85;
+          ctx.lineTo(x, yPos);
+        }
+        ctx.lineTo(steps, waveY + waveH / 2);
+        ctx.closePath();
+        ctx.fillStyle = 'var(--text-tertiary)';
+        ctx.globalAlpha = 0.12;
+        ctx.fill();
+
+        // Waveform center line
+        ctx.beginPath();
+        ctx.moveTo(0, waveY + waveH / 2);
+        for (let x = 0; x < steps; x++) {
+          const start = Math.floor(x * samplesPerStep);
+          const end = Math.min(start + samplesPerStep, data.length);
+          let min = 0, max = 0;
+          for (let s = start; s < end; s++) {
+            const val = data[s];
+            if (val < min) min = val;
+            if (val > max) max = val;
+          }
+          const yMin = waveY + waveH / 2 + min * (waveH / 2) * 0.85;
+          const yMax = waveY + waveH / 2 + max * (waveH / 2) * 0.85;
+          ctx.lineTo(x, yMin);
+        }
+        ctx.strokeStyle = 'var(--text-tertiary)';
+        ctx.lineWidth = 1;
+        ctx.globalAlpha = 0.25;
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+      }
+
+      // --- Draw time markers ---
+      ctx.fillStyle = 'var(--text-tertiary)';
+      ctx.font = '8px JetBrains Mono, monospace';
+      ctx.textBaseline = 'bottom';
+      ctx.textAlign = 'left';
+      const stepSec = dur > 120 ? 30 : dur > 60 ? 15 : 10;
+      for (let t = 0; t <= dur; t += stepSec) {
+        const x = (t / dur) * w;
+        if (x < 4 || x > w - 4) continue;
+        ctx.globalAlpha = 0.15;
+        ctx.fillRect(x, 0, 0.5, h);
+        ctx.globalAlpha = 0.5;
+        const mins = Math.floor(t / 60);
+        const secs = Math.floor(t % 60);
+        ctx.fillText(mins + ':' + String(secs).padStart(2, '0'), x + 2, h - 2);
+      }
+      ctx.globalAlpha = 1;
+
+      // --- Draw playhead ---
+      if (currentTime !== undefined && currentTime >= 0 && dur > 0) {
+        const phX = (currentTime / dur) * w;
+        if (phX >= 0 && phX <= w) {
+          ctx.strokeStyle = 'var(--accent)';
+          ctx.lineWidth = 2;
+          ctx.globalAlpha = 0.9;
+          ctx.beginPath();
+          ctx.moveTo(phX, 0);
+          ctx.lineTo(phX, h);
+          ctx.stroke();
+          ctx.strokeStyle = 'var(--accent)';
+          ctx.lineWidth = 6;
+          ctx.globalAlpha = 0.2;
+          ctx.beginPath();
+          ctx.moveTo(phX, 0);
+          ctx.lineTo(phX, h);
+          ctx.stroke();
+          ctx.globalAlpha = 1;
+        }
+      }
+    }
+
+    // --- Initialize timeline on first render ---
+    function initTimeline() {
+      requestAnimationFrame(function() {
+        drawTimeline(0);
+      });
+    }
+
+    // --- Playback ---
+    function getAudioContext() {
+      if (!audioContext) audioContext = new AudioContext();
+      return audioContext;
+    }
+
+    function startPlayback() {
+      var ctx = getAudioContext();
+      if (!currentAudioBuffer) return;
+
+      if (ctx.state === 'suspended') { ctx.resume(); }
+
+      currentSource = ctx.createBufferSource();
+      currentSource.buffer = currentAudioBuffer;
+      currentSource.playbackRate.value = playbackSpeed;
+
+      currentGain = ctx.createGain();
+      currentGain.gain.value = parseFloat(volumeSlider.value) || 0.8;
+
+      currentSource.connect(currentGain);
+      currentGain.connect(ctx.destination);
+
+      currentSource.start(0, playbackOffset);
+      playbackStartTime = ctx.currentTime;
+      isPlaying = true;
+
+      playIcon.style.display = 'none';
+      pauseIcon.style.display = 'block';
+      btnPlay.setAttribute('aria-label', 'Pause');
+
+      startPlayerLoop();
+
+      currentSource.onended = function() {
+        if (isPlaying) {
+          stopPlayback(false);
+          playbackOffset = 0;
+          drawTimeline(0);
+          updateCurrentChord(chordRegions[0] || null);
+          document.querySelectorAll('.prog-chord').forEach(function(el) { el.classList.remove('active'); });
+        }
+      };
+    }
+
+    function stopPlayback(resetOffset) {
+      if (resetOffset === undefined) resetOffset = true;
+      if (currentSource) {
+        try { currentSource.stop(); } catch(e) {}
+        try { currentSource.disconnect(); } catch(e) {}
+        currentSource = null;
+      }
+      if (currentGain) {
+        try { currentGain.disconnect(); } catch(e) {}
+        currentGain = null;
+      }
+      isPlaying = false;
+      if (resetOffset) playbackOffset = 0;
+      stopPlayerLoop();
+      playIcon.style.display = 'block';
+      pauseIcon.style.display = 'none';
+      btnPlay.setAttribute('aria-label', 'Play');
+    }
+
+    function togglePlay() {
+      if (isPlaying) {
+        if (currentSource && audioContext) {
+          playbackOffset += audioContext.currentTime - playbackStartTime;
+        }
+        stopPlayback(false);
+        playIcon.style.display = 'block';
+        pauseIcon.style.display = 'none';
+        btnPlay.setAttribute('aria-label', 'Play');
+      } else {
+        startPlayback();
+      }
+    }
+
+    function seekTo(time) {
+      var dur = audioDuration || (currentAudioBuffer ? currentAudioBuffer.duration : 0);
+      if (dur <= 0) return;
+      var clamped = Math.max(0, Math.min(time, dur));
+      var wasPlaying = isPlaying;
+
+      if (isPlaying) { stopPlayback(false); }
+
+      playbackOffset = clamped;
+      drawTimeline(clamped);
+
+      // Find current chord region
+      var region = null;
+      for (var ri = 0; ri < chordRegions.length; ri++) {
+        if (clamped >= chordRegions[ri].startTime && clamped < chordRegions[ri].endTime) {
+          region = chordRegions[ri];
+          break;
+        }
+      }
+      updateCurrentChord(region || null);
+
+      // Update progression highlight
+      var progIndex = Math.min(Math.floor((clamped / dur) * 8), 7);
+      document.querySelectorAll('.prog-chord').forEach(function(el, i) {
+        el.classList.toggle('active', i === progIndex);
+      });
+
+      if (wasPlaying) { startPlayback(); }
+
+      updateTimeDisplay(clamped, dur);
+    }
+
+    function setSpeed(factor) {
+      playbackSpeed = factor;
+      if (currentSource) {
+        currentSource.playbackRate.value = factor;
+      }
+      speedBtns.forEach(function(btn) {
+        btn.classList.toggle('active', parseFloat(btn.dataset.speed) === factor);
+      });
+    }
+
+    function setVolume(val) {
+      if (currentGain) {
+        currentGain.gain.value = val;
+      }
+    }
+
+    function updateTimeDisplay(current, total) {
+      var m = Math.floor(current / 60);
+      var sec = Math.floor(current % 60);
+      var tm = Math.floor(total / 60);
+      var ts = Math.floor(total % 60);
+      timeDisplay.textContent = m + ':' + String(sec).padStart(2, '0') + ' / ' + tm + ':' + String(ts).padStart(2, '0');
+    }
+
+    // --- Animation loop ---
+    var playerFallbackInterval = null;
+    function startPlayerLoop() {
+      stopPlayerLoop();
+      function loop() {
+        if (!isPlaying || !audioContext) { stopPlayerLoop(); return; }
+        var elapsed = audioContext.currentTime - playbackStartTime;
+        var currentTime = playbackOffset + elapsed;
+        var dur = audioDuration || (currentAudioBuffer ? currentAudioBuffer.duration : 0);
+
+        if (dur > 0) {
+          drawTimeline(currentTime);
+          updateTimeDisplay(Math.min(currentTime, dur), dur);
+        }
+
+        // Find current chord
+        var region = null;
+        for (var ri = 0; ri < chordRegions.length; ri++) {
+          if (currentTime >= chordRegions[ri].startTime && currentTime < chordRegions[ri].endTime) {
+            region = chordRegions[ri];
+            break;
+          }
+        }
+        if (region) {
+          updateCurrentChord(region);
+          var m1 = Math.floor(region.startTime / 60);
+          var s1 = Math.floor(region.startTime % 60);
+          var m2 = Math.floor(region.endTime / 60);
+          var s2 = Math.floor(region.endTime % 60);
+          ccdTime.textContent = m1 + ':' + String(s1).padStart(2, '0') + ' - ' + m2 + ':' + String(s2).padStart(2, '0');
+        }
+
+        // Update progression highlight
+        if (dur > 0) {
+          var progIndex = Math.min(Math.floor((currentTime / dur) * 8), 7);
+          document.querySelectorAll('.prog-chord').forEach(function(el, i) {
+            el.classList.toggle('active', i === progIndex);
+          });
+        }
+
+        playerAnimationId = requestAnimationFrame(loop);
+      }
+      playerAnimationId = requestAnimationFrame(loop);
+      // Fallback interval for background tabs where rAF is throttled
+      playerFallbackInterval = setInterval(function() {
+        if (isPlaying && audioContext) {
+          // Force update on interval as fallback
+          var elapsed = audioContext.currentTime - playbackStartTime;
+          var currentTime = playbackOffset + elapsed;
+          updateTimeDisplay(Math.min(currentTime, audioDuration || 0), audioDuration || 0);
+        }
+      }, 250);
+    }
+
+    function stopPlayerLoop() {
+      if (playerAnimationId) {
+        cancelAnimationFrame(playerAnimationId);
+        playerAnimationId = null;
+      }
+      if (playerFallbackInterval) {
+        clearInterval(playerFallbackInterval);
+        playerFallbackInterval = null;
+      }
+    }
+
+    // --- Player Event Listeners ---
+    btnPlay.addEventListener('click', togglePlay);
+
+    // Seek on timeline click
+    timelineContainer.addEventListener('click', function(e) {
+      var rect = timelineContainer.getBoundingClientRect();
+      var x = e.clientX - rect.left;
+      var pct = x / rect.width;
+      var dur = audioDuration || (currentAudioBuffer ? currentAudioBuffer.duration : 0);
+      seekTo(pct * dur);
+    });
+
+    // Speed buttons
+    speedBtns.forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        setSpeed(parseFloat(btn.dataset.speed));
+      });
+    });
+
+    // Volume slider
+    volumeSlider.addEventListener('input', function() {
+      setVolume(parseFloat(volumeSlider.value));
+    });
+
+    // Resize listener for canvas
+    var resizeTimer;
+    window.addEventListener('resize', function() {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(function() {
+        if (playerSection.classList.contains('visible')) {
+          drawTimeline(isPlaying && audioContext ? playbackOffset + (audioContext.currentTime - playbackStartTime) : playbackOffset);
+        }
+      }, 200);
+    });
 
     // --- Input Mode Tabs ---
     const MODES = {
@@ -2195,8 +2924,9 @@
         if (!audioContext) audioContext = new AudioContext();
         const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
         const channelData = audioBuffer.getChannelData(0);
+        currentAudioBuffer = audioBuffer;
         const chordsResult = await runEssentiaChordAnalysis(channelData, audioBuffer.sampleRate);
-        displayResult(chordsResult);
+        displayResult({ ...chordsResult, duration: audioBuffer.duration });
 
         resetYoutubeMode();
       } catch (err) {
@@ -2302,11 +3032,12 @@
       const channelData = audioBuffer.numberOfChannels > 1
         ? stereoToMono(audioBuffer)
         : audioBuffer.getChannelData(0);
+      currentAudioBuffer = audioBuffer;
 
       const chordsResult = await runEssentiaChordAnalysis(channelData, audioBuffer.sampleRate);
       const savedMode = currentMode;
       currentMode = sourceLabel;
-      displayResult(chordsResult);
+      displayResult({ ...chordsResult, duration: audioBuffer.duration });
       currentMode = savedMode;
 
       captureReady.classList.remove('hidden');
@@ -2394,6 +3125,10 @@
     }
 
     analyzeAgain.addEventListener('click', () => {
+      stopPlayback(true);
+      playerSection.classList.remove('visible');
+      chordRegions = [];
+      currentAudioBuffer = null;
       if (currentMode === 'file') resetFileMode();
       else { hideError(); loading.classList.remove('visible'); result.classList.remove('visible'); keyDisplay.classList.remove('visible'); keyDisplay.style.display = 'none'; progression.classList.remove('visible'); }
     });
